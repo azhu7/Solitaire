@@ -6,7 +6,6 @@ import java.util.Stack;
 
 public class Board {
 
-	private final String deck_name = "deck";
 	private final int NUM_COLS = 7;
 	private final int NUM_PILES = 4;
 
@@ -65,7 +64,7 @@ public class Board {
 		for (int j = 0; j < NUM_PILES; ++j) {
 			pile.add(new Pile());
 		}
-		deck = new Deck(deck_name);
+		deck = new Deck(Deck.deck_name);
 		next_cards = new ArrayDeque<Card>();
 	}
 
@@ -78,5 +77,9 @@ public class Board {
 			return true;
 		}
 		return false; // Invalid move
+	}
+	
+	public void print_deck() {
+		// TODO
 	}
 }

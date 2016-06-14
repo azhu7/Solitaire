@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 
 public class Deck {
 
+	public final static String deck_name = "deck";
 	private final int DECK_SIZE = 52;
 	private Card[] cards = new Card[DECK_SIZE];
 	private Vector<Integer> order = new Vector<Integer>(DECK_SIZE);
@@ -87,9 +88,23 @@ public class Deck {
 		return null;
 	}
 
+	// Load generic deck
+	public Deck() {
+		this(deck_name, true);
+	}
+	
+	// Load specific deck
 	public Deck(final String file_name) {
+		this(file_name, true);
+	}
+	
+	// Load specific deck, shuffle=false for debugging
+	public Deck(final String file_name, boolean shuffle) {
 		initialize_deck(file_name);
-		shuffle();
+		// No shuffle option for debugging purposes
+		if (shuffle) {
+			shuffle();
+		}
 	}
 
 	public void shuffle() {
