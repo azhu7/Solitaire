@@ -17,7 +17,7 @@ public class Deck {
 	private void initialize_deck(final String file_name) {
 		try {
 			Scanner in = new Scanner(new File(file_name));
-
+			// Read in cards from deck file
 			for (int i = 0; i < DECK_SIZE; i++) {
 				Rank rank_in = parse_rank(in.next());
 				Suit suit_in = parse_suit(in.next());

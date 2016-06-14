@@ -55,6 +55,7 @@ public class Card {
 		this.suit = suit_in;
 		this.rank = rank_in;
 		this.rank_num = rank_to_num(rank_in);
+		this.color = suit_to_string(suit_in);
 	}
 
 	public Rank get_rank() {
