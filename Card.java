@@ -6,6 +6,7 @@ public class Card {
 	private Suit suit;
 	private String color; // Consider removing this
 
+	// EFFECTS: Returns numerical value of card rank
 	private int rank_to_num(Rank rank_in) {
 		switch (rank_in) {
 		case ACE:
@@ -41,7 +42,8 @@ public class Card {
 		}
 		return -1; // To suppress compiler warnings
 	}
-
+	
+	// EFFECTS: Returns string of card color
 	private String suit_to_string(Suit suit_in) {
 		if (suit_in == Suit.SPADES || suit_in == Suit.CLUBS) {
 			return "Black";

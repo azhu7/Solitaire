@@ -7,7 +7,7 @@ public class Solitaire_tests {
 		
 		//Call tests here
 		test_Card();
-		//test_Deck();
+		test_Deck();
 		test_Board();
 		
 		System.out.println("All tests passed!");
@@ -27,10 +27,18 @@ public class Solitaire_tests {
 	
 	public static void test_Deck() {
 		System.out.println("Begin test_Deck");
-		
-		Deck deck = new Deck(Deck.deck_name, true);
-		// TODO
-		
+		Deck deck = new Deck(deck.txt, 0);
+		Card top = deck.top();
+		assert(top.get_color() == "Black");
+		assert(top.get_rank() == Rank.TWO);
+		assert(top.get_suit() == Suit.SPADES);
+		assert(top.get_rank_num() == 2);
+		deck.deal_one();
+		Card top = deck.top();
+		assert(top.get_color() == "Black");
+		assert(top.get_rank() == Rank.THREE);
+		assert(top.get_suit() == Suit.SPADES);
+		assert(top.get_rank_num() == 3);
 		System.out.println("test_Deck passed");
 	}
 	
