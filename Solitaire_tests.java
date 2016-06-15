@@ -6,7 +6,7 @@ public class Solitaire_tests {
 		//Call tests here
 		test_Card();
 		//test_Deck();
-		test_Board();
+		//test_Board();
 		
 		System.out.println("All tests passed!");
 	}
@@ -22,7 +22,7 @@ public class Solitaire_tests {
 		
 		System.out.println("test_Card passed");
 	}
-/*	
+
 	public static void test_Deck() {
 		System.out.println("Begin test_Deck");
 		Deck deck = new Deck(deck.txt, 0);   how to feed file name
@@ -39,7 +39,6 @@ public class Solitaire_tests {
 		assert(top.get_rank_num() == 3);
 		System.out.println("test_Deck passed");
 	}
-*/
 	
 	public static void test_Board() {
 		System.out.println("Begin test_Board");
