@@ -1,5 +1,3 @@
-package solitaire;
-
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Vector;

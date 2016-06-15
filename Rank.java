@@ -1,5 +1,3 @@
-package solitaire;
-
 public enum Rank {
 	ACE,
 	TWO,

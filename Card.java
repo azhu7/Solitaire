@@ -1,5 +1,3 @@
-package solitaire;
-
 public class Card {
 	private Rank rank;
 	private int rank_num; // Consider removing this
