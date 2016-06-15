@@ -88,12 +88,7 @@ public class Deck {
 		return null;
 	}
 
-	// Load generic deck
-	public Deck() {
-		this(deck_name, true);
-	}
-	
-	// Load specific deck
+	// Load specific deck and shuffle
 	public Deck(final String file_name) {
 		this(file_name, true);
 	}

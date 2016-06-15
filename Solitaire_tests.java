@@ -7,6 +7,8 @@ public class Solitaire_tests {
 		
 		//Call tests here
 		test_Card();
+		//test_Deck();
+		test_Board();
 		
 		System.out.println("All tests passed!");
 	}
@@ -26,8 +28,35 @@ public class Solitaire_tests {
 	public static void test_Deck() {
 		System.out.println("Begin test_Deck");
 		
-		Deck deck = new Deck();
+		Deck deck = new Deck(Deck.deck_name, true);
+		// TODO
 		
 		System.out.println("test_Deck passed");
+	}
+	
+	public static void test_Board() {
+		System.out.println("Begin test_Board");
+		
+		Board board = new Board();
+		Card two_clubs = new Card(Rank.TWO, Suit.CLUBS);
+		Card ace_hearts = new Card(Rank.ACE, Suit.HEARTS);
+		// Place two_clubs
+		board.place_card_from_deck(0, two_clubs);
+		assert(board.peek_card(0) == two_clubs);
+		// Place ace_hearts
+		board.place_card_from_deck(0, ace_hearts);
+		assert(board.peek_card(0) == ace_hearts);
+		// Move ace_hearts
+		board.move_card_btwn_cols(0, 1);
+		assert(board.peek_card(0) == two_clubs);
+		assert(board.peek_card(1) == ace_hearts);
+		// Invalid move
+		assert(board.move_card_btwn_cols(0, 1));
+		// Make sure card did not move
+		assert(board.peek_card(0) == two_clubs);
+		
+		// TODO: Check pile actions
+		
+		System.out.println("test_Board passed");
 	}
 }
