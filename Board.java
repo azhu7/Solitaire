@@ -14,7 +14,7 @@ public class Board {
 		}
 
 		public ArrayDeque<Card> column;
-		public String top_color;
+		public String top_color = null;
 	}
 
 	// A pile in the game board
@@ -24,21 +24,20 @@ public class Board {
 		}
 
 		public Stack<Card> pile;
-		public Suit suit;
 	}
 
-	private ArrayList<Column> board;
+	private ArrayList<Column> columns;
 	private ArrayList<Pile> piles;
 	private Deck deck;
 	private ArrayDeque<Card> next_cards;
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
-	// EFFECTS: Checks whether move is valid
+	// EFFECTS: Checks whether can place card in col
 	private boolean valid_col_move(final int col, final Card card) {
 		// Assert REQUIRES statement
-		assert (col > 0 && col < NUM_COLS - 1);
+		assert (col >= 0 && col < NUM_COLS);
 
-		Column this_column = board.get(col);
+		Column this_column = columns.get(col);
 		// Column is empty
 		if (this_column.column.isEmpty())
 			return true;
@@ -48,55 +47,66 @@ public class Board {
 		if (this_column.top_color == "Black") {
 			correct_color = !correct_color;
 		}
-		// Card is correct color and rank
-		return (correct_color && card.get_rank_num() ==
-				this_column.column.peek().get_rank_num() - 1);
+		// True if card is correct color and rank
+		boolean correct_rank = card.get_rank_num() ==
+				peek_col_card(col).get_rank_num() - 1;
+		return correct_color && correct_rank;
 	}
 	
+	// REQUIRES: pile_num is [0, NUM_PILES - 1]
+	// EFFECTS: Checks whether can place card in pile
 	private boolean valid_pile_move(final int pile_num, final Card card) {
-		// TODO
-		// If empty, check if Ace
-		// Else, check top card of selected pile
-		return false;
+		Stack<Card> this_pile = piles.get(pile_num).pile;
+		if (this_pile.isEmpty()) {
+			// True if card is an Ace
+			return card.get_rank() == Rank.ACE;
+		}
+		else {
+			// True if card is same suit and one rank higher
+			boolean correct_suit = card.get_suit() == peek_pile_card(pile_num).get_suit();
+			boolean correct_rank = card.get_rank_num() == this_pile.peek().get_rank_num() + 1;
+			return correct_suit && correct_rank;
+		}
 	}
 
 	// REQUIRES col is [0, NUM_COLS - 1]
-	// MODIFIES this
+	// MODIFIES columns
 	// EFFECTS adds card to selected column
 	private void col_push_card(final int col, final Card card) {
-		Column this_col = board.get(col);
+		Column this_col = columns.get(col);
 		this_col.column.push(card);
 		this_col.top_color = card.get_color();
 	}
 	
 	// REQUIRES pile_num is [0, NUM_PILES - 1]
-	// MODIFIES this
+	// MODIFIES piles
 	// EFFECTS adds card to selected column
 	private void pile_push_card(final int pile_num, final Card card) {
 		Pile this_pile = piles.get(pile_num);
-		if (this_pile.pile.empty()) {
-			this_pile.suit = card.get_suit();
-		}
 		this_pile.pile.push(card);
 	}
 
-	// REQUIRES col is [0, NUM_COLS - 1]
-	// MODIFIES this
+	// REQUIRES col is [0, NUM_COLS - 1].
+	//			col is not empty
+	// MODIFIES columns
 	// EFFECTS removes card from selected column
 	private void pop_card(final int col) {
-		Column this_col = board.get(col);
+		Column this_col = columns.get(col);
 		this_col.column.pop();
-		this_col.top_color = this_col.column.peek().get_color();
+		if (!this_col.column.isEmpty())
+			this_col.top_color = this_col.column.peek().get_color();
+		else
+			this_col.top_color = null;
 	}
 
 	// MODIFIES: this
 	// EFFECTS: Initializes board
 	public Board() {
-		board = new ArrayList<Column>();
+		columns = new ArrayList<Column>();
 		piles = new ArrayList<Pile>();
 		// Add empty Columns
 		for (int i = 0; i < NUM_COLS; ++i) {
-			board.add(new Column());
+			columns.add(new Column());
 		}
 		// Add empty Piles
 		for (int j = 0; j < NUM_PILES; ++j) {
@@ -106,18 +116,26 @@ public class Board {
 		next_cards = new ArrayDeque<Card>();
 	}
 	
-	// REQUIRES: this
-	// EFFECTS: returns bottom card in selected card
-	public Card peek_card(final int col) {
-		return board.get(col).column.peek();
+	// REQUIRES: col is [0, NUM_COLS - 1].
+	//			 col is not empty
+	// EFFECTS: returns bottom card in selected column
+	public Card peek_col_card(final int col) {
+		return columns.get(col).column.peek();
+	}
+	
+	// REQUIRES: pile is [0, NUM_PILES - 1].
+	//			 pile is not empty
+	// EFFECTS: returns card on top of selected pile
+	public Card peek_pile_card(final int pile_num) {
+		return piles.get(pile_num).pile.peek();
 	}
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
-	// MODIFIES: this
-	// EFFECTS: Places card on game board if valid
-	public boolean place_card_from_deck(final int col, final Card card) {
+	// MODIFIES: columns, next_cards
+	// EFFECTS: Places card in column if valid
+	public boolean deck_to_col(final int col, final Card card) {
 		// Assert REQUIRES statement
-		assert (col > 0 && col < NUM_COLS - 1);
+		assert (col >= 0 && col < NUM_COLS);
 
 		if (valid_col_move(col, card)) {
 			col_push_card(col, card);
@@ -126,16 +144,32 @@ public class Board {
 		}
 		return false; // Invalid move
 	}
-
-	// REQUIRES: old_col and new_col are [0, NUM_COLS - 1]
-	// MODIFIES: this
-	// EFFECTS: Moves card from one column to the other if valid
-	public boolean move_card_btwn_cols(final int old_col, final int new_col) {
+	
+	// REQUIRES: pile_num is [0, NUM_PILES - 1]
+	// MODIFIES: piles, next_cards
+	// EFFECTS: Places card on pile if valid
+	public boolean deck_to_pile(final int pile_num, final Card card) {
 		// Assert REQUIRES statement
-		assert (old_col > 0 && old_col < NUM_COLS - 1);
-		assert (new_col > 0 && new_col < NUM_COLS - 1);
+		assert (pile_num >= 0 && pile_num < NUM_PILES);
+
+		if (valid_pile_move(pile_num, card)) {
+			pile_push_card(pile_num, card);
+			// TODO: Update deck as well
+			return true;
+		}
+		return false; // Invalid move
+	}
+
+	// REQUIRES: old_col and new_col are [0, NUM_COLS - 1].
+	//			 old_col is not empty
+	// MODIFIES: columns
+	// EFFECTS: Moves card from one column to the other if valid
+	public boolean col_to_col(final int old_col, final int new_col) {
+		// Assert REQUIRES statement
+		assert (old_col >= 0 && old_col < NUM_COLS);
+		assert (new_col >= 0 && new_col < NUM_COLS);
 		
-		Card top_card = peek_card(old_col);
+		Card top_card = peek_col_card(old_col);
 		if (valid_col_move(new_col, top_card)) {
 			col_push_card(new_col, top_card);
 			pop_card(old_col);
@@ -144,11 +178,15 @@ public class Board {
 		return false; // Invalid move
 	}
 
-	public boolean move_card_to_pile(final int col, final int pile_num) {
-		assert (col > 0 && col < NUM_COLS - 1);
-		assert (pile_num > 0 && pile_num < NUM_PILES - 1);
+	// REQUIRES: col is [0, NUM_COLS - 1]
+	//			 pile_num is [0, NUM_PILES - 1]
+	// MODIFIES: columns, piles
+	// EFFECTS: Moves card from column to pile if valid
+	public boolean col_to_pile(final int col, final int pile_num) {
+		assert (col >= 0 && col < NUM_COLS);
+		assert (pile_num >= 0 && pile_num < NUM_PILES);
 		
-		Card top_card = peek_card(col);
+		Card top_card = peek_col_card(col);
 		if (valid_pile_move(pile_num, top_card)) {
 			pop_card(col);
 			pile_push_card(pile_num, top_card);
