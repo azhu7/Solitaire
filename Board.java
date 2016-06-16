@@ -93,14 +93,14 @@ public class Board {
 	// EFFECTS: Initializes board
 	public Board() {
 		board = new ArrayList<Column>();
-		pile = new ArrayList<Pile>();
+		piles = new ArrayList<Pile>();
 		// Add empty Columns
 		for (int i = 0; i < NUM_COLS; ++i) {
 			board.add(new Column());
 		}
 		// Add empty Piles
 		for (int j = 0; j < NUM_PILES; ++j) {
-			pile.add(new Pile());
+			piles.add(new Pile());
 		}
 		deck = new Deck(Deck.deck_name);
 		next_cards = new ArrayDeque<Card>();
