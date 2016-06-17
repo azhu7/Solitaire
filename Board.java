@@ -6,10 +6,12 @@
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Stack;
 
 public class Board {
-	// TODO: Change assert statements to throw exceptions instead. Driver catches.
+	// TODO: change assert statements to throw exceptions instead. Driver catches.
+	// TODO: implement flip_piles...oops
 	private final int NUM_COLS = 7;
 	private final int NUM_PILES = 4;
 	private final int NUM_CARDS_IN_QUEUE = 3;
@@ -34,9 +36,10 @@ public class Board {
 	}
 
 	private ArrayList<Column> columns;
-	private ArrayList<Pile> piles;
-	private Deck deck;
-	private ArrayDeque<Card> card_queue;
+	private ArrayList<Pile> finish_piles;
+	private Stack<Card> flip_piles;
+	protected Deck deck; // Protected for debug purposes
+	protected ArrayDeque<Card> card_queue; // addLast and removeFirst
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	// EFFECTS: Checks whether can place card in col
@@ -61,16 +64,16 @@ public class Board {
 	}
 	
 	// REQUIRES: pile_num is [0, NUM_PILES - 1]
-	// EFFECTS: Checks whether can place card in pile
+	// EFFECTS: Checks whether can place card in finish_piles
 	private boolean valid_pile_move(final int pile_num, final Card card) {
-		Stack<Card> this_pile = piles.get(pile_num).pile;
+		Stack<Card> this_pile = finish_piles.get(pile_num).pile;
 		if (this_pile.isEmpty()) {
 			// True if card is an Ace
 			return card.get_rank() == Rank.ACE;
 		}
 		else {
 			// True if card is same suit and one rank higher
-			boolean correct_suit = card.get_suit() == peek_pile_card(pile_num).get_suit();
+			boolean correct_suit = card.get_suit() == peek_finish_pile_card(pile_num).get_suit();
 			boolean correct_rank = card.get_rank_num() == this_pile.peek().get_rank_num() + 1;
 			return correct_suit && correct_rank;
 		}
@@ -86,10 +89,10 @@ public class Board {
 	}
 	
 	// REQUIRES pile_num is [0, NUM_PILES - 1]
-	// MODIFIES piles
-	// EFFECTS adds card to selected column
+	// MODIFIES finish_piles
+	// EFFECTS adds card to selected finish_pile
 	private void pile_push_card(final int pile_num, final Card card) {
-		Pile this_pile = piles.get(pile_num);
+		Pile this_pile = finish_piles.get(pile_num);
 		this_pile.pile.push(card);
 	}
 
@@ -107,20 +110,26 @@ public class Board {
 	}
 
 	// MODIFIES: this
-	// EFFECTS: Initializes board
-	public Board() {
+	// EFFECTS: Initializes board, shuffle=false for debug
+	public Board(boolean shuffle) {
 		columns = new ArrayList<Column>();
-		piles = new ArrayList<Pile>();
+		finish_piles = new ArrayList<Pile>();
 		// Add empty Columns
 		for (int i = 0; i < NUM_COLS; ++i) {
 			columns.add(new Column());
 		}
 		// Add empty Piles
 		for (int j = 0; j < NUM_PILES; ++j) {
-			piles.add(new Pile());
+			finish_piles.add(new Pile());
 		}
-		deck = new Deck(Deck.deck_name);
+		deck = new Deck(Deck.deck_name, shuffle);
 		card_queue = new ArrayDeque<Card>();
+	}
+	
+	// MODIFIES: this
+	// EFFECTS: Initialize generic board
+	public Board() {
+		this(false);
 	}
 	
 	// REQUIRES: col is [0, NUM_COLS - 1].
@@ -131,39 +140,49 @@ public class Board {
 	}
 	
 	// REQUIRES: pile is [0, NUM_PILES - 1].
-	//			 pile is not empty
+	//			 finish_piles is not empty
 	// EFFECTS: returns card on top of selected pile
-	public Card peek_pile_card(final int pile_num) {
-		return piles.get(pile_num).pile.peek();
+	public Card peek_finish_pile_card(final int pile_num) {
+		return finish_piles.get(pile_num).pile.peek();
 	}
 
-	// REQUIRES: col is [0, NUM_COLS - 1]
-	// MODIFIES: columns, next_cards
+	// REQUIRES: card_queue is not empty
+	// EFFECTS: returns card at front of card_queue
+	public Card peek_queue_card() {
+		return card_queue.peek();
+	}
+	
+	// REQUIRES: col is [0, NUM_COLS - 1], queue is not empty
+	// MODIFIES: columns, card_queue
 	// EFFECTS: Places card in column if valid
 	//			Returns false if invalid
 	public boolean deck_to_col(final int col, final Card card) {
 		// Assert REQUIRES statement
 		assert (col >= 0 && col < NUM_COLS);
+		assert (!card_queue.isEmpty());
 
 		if (valid_col_move(col, card)) {
-			col_push_card(col, card);
-			// TODO: Update deck as well
+			col_push_card(col, card); // Add card to column
+			card_queue.removeFirst(); // Remove card from queue
+			deck.set_used(card); // Set card as used
 			return true;
 		}
 		return false; // Invalid move
 	}
 	
-	// REQUIRES: pile_num is [0, NUM_PILES - 1]
-	// MODIFIES: piles, next_cards
-	// EFFECTS: Places card on pile if valid
+	// REQUIRES: pile_num is [0, NUM_PILES - 1], queue is not empty
+	// MODIFIES: finish_piles, card_queue
+	// EFFECTS: Places card on finish_piles if valid
 	//			Returns false if invalid
 	public boolean deck_to_pile(final int pile_num, final Card card) {
 		// Assert REQUIRES statement
 		assert (pile_num >= 0 && pile_num < NUM_PILES);
+		assert (!card_queue.isEmpty());
 
 		if (valid_pile_move(pile_num, card)) {
-			pile_push_card(pile_num, card);
-			// TODO: Update deck as well
+			pile_push_card(pile_num, card); // Add card to finish_piles
+			card_queue.removeFirst(); // Remove card from queue
+			deck.set_used(card); // Set card as used
 			return true;
 		}
 		return false; // Invalid move
@@ -191,7 +210,7 @@ public class Board {
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	//			 pile_num is [0, NUM_PILES - 1]
 	// MODIFIES: columns, piles
-	// EFFECTS: Moves card from column to pile if valid
+	// EFFECTS: Moves card from column to finish_piles if valid
 	//			Returns false if invalid move
 	public boolean col_to_pile(final int col, final int pile_num) {
 		assert (col >= 0 && col < NUM_COLS);
@@ -201,26 +220,49 @@ public class Board {
 		if (valid_pile_move(pile_num, top_card)) {
 			pop_card(col);
 			pile_push_card(pile_num, top_card);
+			return true;
 		}
 		return false;
 	}
 	
-	// MODIFIES: deck, next_three
+	// MODIFIES: deck, card_queue
 	// EFFECTS: Adds next three cards to next_cards
-	public void next_three_cards() {
+	public void get_next_three_cards() {
 		card_queue.clear();
 		while (!deck.empty() && card_queue.size() != 3) {
-			card_queue.add(deck.deal_one());
+			card_queue.addLast(deck.deal_one());
 		}
 	}
 	
+	// MODIFIES: deck, card_queue
+	// EFFECTS: Resets deck when player reaches bottom of deck
 	public void reset_deck() {
 		card_queue.clear();
 		deck.reset();
+	}
+	
+	// EFFECTS: Prints out contents of card_queue
+	public void print_card_queue() {
+		String out = "";
+		for(Iterator itr = card_queue.iterator(); itr.hasNext();) {
+			out = itr.next() + " " + out; // Print in reverse order
+		}
+		System.out.println(out);
+	}
+	
+	// EFFECTS: Prints out contents of columns
+	public void print_columns() {
+		
+	}
+	
+	// EFFECTS: Prints out top of each pile
+	public void print_piles() {
+		
 	}
 	
 	// EFFECTS: Prints board layout
 	public void print_board() {
 		// TODO
 	}
+
 }

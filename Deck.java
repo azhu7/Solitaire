@@ -18,7 +18,7 @@ public class Deck {
 	private Card[] cards = new Card[DECK_SIZE];
 	private Vector<Integer> order = new Vector<Integer>(DECK_SIZE);
 	private Vector<Boolean> used = new Vector<Boolean>(DECK_SIZE);
-	private int current = 0; // 0 is top of deck
+	private int current = 0; // 0 is top of deck. Current should never be a used card
 	
 	// TODO: update used vector for all actions
 
@@ -132,8 +132,17 @@ public class Deck {
 	// REQUIRES this is not empty
 	// EFFECTS deals top card
 	public Card deal_one() {
+		if (empty()) {
+			System.out.println("deal_one(): Deck is empty");
+		}
 		Card top = this.top();
-		++current;
+		// Keep iterating current until reach unused card
+		while(++current < DECK_SIZE && used.get(order.get(current))) {}
+		if (current == DECK_SIZE) {
+			System.out.println("deal_one(): Reached end of deck"); // Temporary
+			// FIXME: What to do when reached end of deck?
+			//reset();
+		}
 		return top;
 	}
 
@@ -142,9 +151,14 @@ public class Deck {
 		return current >= DECK_SIZE;
 	}
 	
+	public void set_used(Card card) {
+		used.set(card.get_deck_index(), true);
+	}
+	
 	// MODIFIES this
 	// EFFECTS Resets deck. Maintains order and used
 	public void reset() {
 		current = 0;
 	}
+
 }
