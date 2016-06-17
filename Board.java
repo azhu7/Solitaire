@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 public class Board {
-	// TODO: change assert statements to throw exceptions instead. Driver catches.
+	// TODO: Change assert statements to throw exceptions instead. Driver catches.
 	private final int NUM_COLS = 7;
 	private final int NUM_PILES = 4;
 	private final int NUM_CARDS_IN_QUEUE = 3;
