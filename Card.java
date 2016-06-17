@@ -80,7 +80,60 @@ public class Card {
 		return this.color;
 	}
 
-	public String toString() {
-		return rank + " of " + suit;
+	// REQUIRES using default deck
+	// EFFECTS returns index in deck
+	public int get_deck_index() {
+		int index = get_rank_num() - 1;
+		// Continually adds 13 based on suit
+		switch (get_suit()) {
+		case DIAMONDS:
+			index += 13;
+		case CLUBS:
+			index += 13;
+		case HEARTS:
+			index += 13;
+		default: {
+			return index;
+		}
+		}
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((color == null) ? 0 : color.hashCode());
+		result = prime * result + ((rank == null) ? 0 : rank.hashCode());
+		result = prime * result + rank_num;
+		result = prime * result + ((suit == null) ? 0 : suit.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Card other = (Card) obj;
+		if (color == null) {
+			if (other.color != null)
+				return false;
+		} else if (!color.equals(other.color))
+			return false;
+		if (rank != other.rank)
+			return false;
+		if (rank_num != other.rank_num)
+			return false;
+		if (suit != other.suit)
+			return false;
+		return true;
+	}
+	
+	public String toString() {
+		return "/" + rank + " of " + suit + '\\';
+	}
+
 }
