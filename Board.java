@@ -1,11 +1,18 @@
+/*
+ * Created June 13, 2016
+ * Author: Alexander Zhu
+ * Coauthor: Jason Zhu
+ */
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Stack;
 
 public class Board {
-	// TODO: change assert statements to throw exceptions instead
+	// TODO: change assert statements to throw exceptions instead. Driver catches.
 	private final int NUM_COLS = 7;
 	private final int NUM_PILES = 4;
+	private final int NUM_CARDS_IN_QUEUE = 3;
 
 	// A column in the game board
 	private class Column {
@@ -29,7 +36,7 @@ public class Board {
 	private ArrayList<Column> columns;
 	private ArrayList<Pile> piles;
 	private Deck deck;
-	private ArrayDeque<Card> next_cards;
+	private ArrayDeque<Card> card_queue;
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	// EFFECTS: Checks whether can place card in col
@@ -113,7 +120,7 @@ public class Board {
 			piles.add(new Pile());
 		}
 		deck = new Deck(Deck.deck_name);
-		next_cards = new ArrayDeque<Card>();
+		card_queue = new ArrayDeque<Card>();
 	}
 	
 	// REQUIRES: col is [0, NUM_COLS - 1].
@@ -133,6 +140,7 @@ public class Board {
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	// MODIFIES: columns, next_cards
 	// EFFECTS: Places card in column if valid
+	//			Returns false if invalid
 	public boolean deck_to_col(final int col, final Card card) {
 		// Assert REQUIRES statement
 		assert (col >= 0 && col < NUM_COLS);
@@ -148,6 +156,7 @@ public class Board {
 	// REQUIRES: pile_num is [0, NUM_PILES - 1]
 	// MODIFIES: piles, next_cards
 	// EFFECTS: Places card on pile if valid
+	//			Returns false if invalid
 	public boolean deck_to_pile(final int pile_num, final Card card) {
 		// Assert REQUIRES statement
 		assert (pile_num >= 0 && pile_num < NUM_PILES);
@@ -164,6 +173,7 @@ public class Board {
 	//			 old_col is not empty
 	// MODIFIES: columns
 	// EFFECTS: Moves card from one column to the other if valid
+	//			Returns false if invalid move
 	public boolean col_to_col(final int old_col, final int new_col) {
 		// Assert REQUIRES statement
 		assert (old_col >= 0 && old_col < NUM_COLS);
@@ -182,6 +192,7 @@ public class Board {
 	//			 pile_num is [0, NUM_PILES - 1]
 	// MODIFIES: columns, piles
 	// EFFECTS: Moves card from column to pile if valid
+	//			Returns false if invalid move
 	public boolean col_to_pile(final int col, final int pile_num) {
 		assert (col >= 0 && col < NUM_COLS);
 		assert (pile_num >= 0 && pile_num < NUM_PILES);
@@ -192,6 +203,20 @@ public class Board {
 			pile_push_card(pile_num, top_card);
 		}
 		return false;
+	}
+	
+	// MODIFIES: deck, next_three
+	// EFFECTS: Adds next three cards to next_cards
+	public void next_three_cards() {
+		card_queue.clear();
+		while (!deck.empty() && card_queue.size() != 3) {
+			card_queue.add(deck.deal_one());
+		}
+	}
+	
+	public void reset_deck() {
+		card_queue.clear();
+		deck.reset();
 	}
 	
 	// EFFECTS: Prints board layout

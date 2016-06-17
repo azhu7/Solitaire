@@ -1,3 +1,9 @@
+/*
+ * Created June 13, 2016
+ * Author: Alexander Zhu
+ * Coauthor: Jason Zhu
+ */
+
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Vector;
@@ -11,8 +17,13 @@ public class Deck {
 	private final int DECK_SIZE = 52;
 	private Card[] cards = new Card[DECK_SIZE];
 	private Vector<Integer> order = new Vector<Integer>(DECK_SIZE);
-	private int current = 0;
+	private Vector<Boolean> used = new Vector<Boolean>(DECK_SIZE);
+	private int current = 0; // 0 is top of deck
+	
+	// TODO: update used vector for all actions
 
+	// MODIFIES this
+	// EFFECTS populates cards and order
 	private void initialize_deck(final String file_name) {
 		try {
 			Scanner in = new Scanner(new File(file_name));
@@ -22,6 +33,7 @@ public class Deck {
 				Suit suit_in = parse_suit(in.next());
 				cards[i] = new Card(rank_in, suit_in);
 				order.addElement(i);
+				used.addElement(false);
 			}
 			in.close();
 		} catch (FileNotFoundException ex) {
@@ -33,6 +45,7 @@ public class Deck {
 		}
 	}
 
+	// EFFECTS returns Suit based on suit_in
 	private Suit parse_suit(final String suit_in) {
 		switch (suit_in) {
 		case "Spades":
@@ -51,6 +64,7 @@ public class Deck {
 		return null;
 	}
 
+	// EFFECTS returns Rank based on rank_in
 	private Rank parse_rank(final String rank_in) {
 		switch (rank_in) {
 		case "Ace":
@@ -86,12 +100,14 @@ public class Deck {
 		return null;
 	}
 
-	// Load specific deck and shuffle
+	// MODIFIES this
+	// EFFECTS Load specific deck and shuffle
 	public Deck(final String file_name) {
 		this(file_name, true);
 	}
 	
-	// Load specific deck, shuffle=false for debugging
+	// MODIFIES this
+	// EFFECTS Load specific deck, shuffle=false for debugging
 	public Deck(final String file_name, boolean shuffle) {
 		initialize_deck(file_name);
 		// No shuffle option for debugging purposes
@@ -100,18 +116,35 @@ public class Deck {
 		}
 	}
 
+	// MODIFIES order
+	// EFFECTS shuffles deck by shuffling order
 	public void shuffle() {
 		Collections.shuffle(order);
 	}
 
+	// REQUIRES this is not empty
+	// EFFECTS returns top card
 	public Card top() {
+		assert(!empty());
 		return cards[order.get(current)];
 	}
 
+	// REQUIRES this is not empty
+	// EFFECTS deals top card
 	public Card deal_one() {
 		Card top = this.top();
 		++current;
 		return top;
 	}
 
+	// EFFECTS returns true if deck is empty
+	public boolean empty() {
+		return current >= DECK_SIZE;
+	}
+	
+	// MODIFIES this
+	// EFFECTS Resets deck. Maintains order and used
+	public void reset() {
+		current = 0;
+	}
 }

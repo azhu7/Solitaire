@@ -1,3 +1,9 @@
+/*
+ * Created June 13, 2016
+ * Author: Alexander Zhu
+ * Coauthor: Jason Zhu
+ */
+
 public class Card {
 	private Rank rank;
 	private int rank_num; // Consider removing this

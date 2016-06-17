@@ -1,3 +1,9 @@
+/*
+ * Created June 14, 2016
+ * Author: Alexander Zhu
+ * Coauthor: Jason Zhu
+ */
+
 public class Solitaire_tests {
 	
 	public static void main(String[] args) {
