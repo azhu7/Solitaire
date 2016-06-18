@@ -4,7 +4,11 @@
  * Coauthor: Jason Zhu
  */
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.Scanner;
@@ -15,10 +19,13 @@ public class Deck {
 
 	public static final String DECK_NAME = "deck";
 	private final int DECK_SIZE = 52;
-	private Card[] cards = new Card[DECK_SIZE];
-	private Vector<Integer> order = new Vector<Integer>(DECK_SIZE);
-	private Vector<Boolean> used = new Vector<Boolean>(DECK_SIZE);
-	private int current = 0; // 0 is top of deck. Current should never be a used card
+	// Top of deck is cards.size() - 1
+	private List<Card> cards = new ArrayList<Card>(DECK_SIZE);
+	// Holds cards that have been dealt but not used
+	private List<Card> dealt = new ArrayList<Card>(DECK_SIZE);
+	//private Vector<Integer> order = new Vector<Integer>(DECK_SIZE);
+	//private Vector<Boolean> used = new Vector<Boolean>(DECK_SIZE);
+	//private int current = 0; // 0 is top of deck. Current should never be a used card
 	
 	// TODO: update used vector for all actions. or remove card from deck instead
 
@@ -31,9 +38,9 @@ public class Deck {
 			for (int i = 0; i < DECK_SIZE; i++) {
 				Rank rank_in = parse_rank(in.next());
 				Suit suit_in = parse_suit(in.next());
-				cards[i] = new Card(rank_in, suit_in);
-				order.addElement(i);
-				used.addElement(false);
+				cards.add(new Card(rank_in, suit_in));
+				//order.addElement(i);
+				//used.addElement(false);
 			}
 			in.close();
 		} catch (FileNotFoundException ex) {
@@ -119,46 +126,41 @@ public class Deck {
 	// MODIFIES order
 	// EFFECTS shuffles deck by shuffling order
 	public void shuffle() {
-		Collections.shuffle(order);
+		Collections.shuffle(cards);
 	}
 
-	// REQUIRES this is not empty
-	// EFFECTS returns top card
+	// REQUIRES deck is not empty
+	// EFFECTS Returns top card
 	public Card top() {
-		assert(!empty());
-		return cards[order.get(current)];
-	}
-
-	// REQUIRES this is not empty
-	// EFFECTS deals top card
-	public Card deal_one() {
-		if (empty()) {
-			System.out.println("deal_one(): Deck is empty");
-		}
-		Card top = this.top();
-		// Keep iterating current until reach unused card
-		while(++current < DECK_SIZE && used.get(order.get(current))) {}
-		if (current == DECK_SIZE) {
-			System.out.println("deal_one(): Reached end of deck"); // Temporary
-			// FIXME: What to do when reached end of deck?
-			//reset();
-		}
-		return top;
-	}
-
-	// EFFECTS returns true if deck is empty
-	public boolean empty() {
-		return current >= DECK_SIZE;
+		assert(!cards.isEmpty());
+		return cards.get(cards.size() - 1);
 	}
 	
-	public void set_used(Card card) {
-		used.set(card.get_deck_index(), true);
+	public void add_to_dealt(ArrayDeque<Card> card_queue) {
+		dealt.addAll(card_queue);
+	}
+
+	// REQUIRES deck is not empty
+	// EFFECTS Deals top card
+	public Card deal_one() {
+		if (cards.isEmpty()) {
+			System.out.println("deal_one(): Deck is empty");
+		}
+		Card top_card = top();
+		cards.remove(cards.size() - 1);
+		return top_card;
+	}
+	
+	// EFFECTS Returns True if deck is empty
+	public boolean empty() {
+		return cards.isEmpty();
 	}
 	
 	// MODIFIES this
 	// EFFECTS Resets deck. Maintains order and used
 	public void reset() {
-		current = 0;
+		cards.addAll(dealt);
+		dealt.clear();
 	}
 
 }
