@@ -5,6 +5,9 @@
  */
 
 public class Card {
+	public static final String RED = "Red";
+	public static final String BLACK = "Black";
+	
 	private Rank rank;
 	private int rank_num; // Consider removing this
 	private Suit suit;

@@ -43,9 +43,8 @@ public class Board implements Use_cases {
 		if (this_column.column.isEmpty())
 			return true;
 		// If top_color is "Red"
-		boolean correct_color = card.get_suit() == Suit.SPADES ||
-				card.get_suit() == Suit.CLUBS;
-		if (this_column.top_color == "Black") {
+		boolean correct_color = card.get_color() == Card.RED;
+		if (this_column.top_color == Card.BLACK) {
 			correct_color = !correct_color;
 		}
 		// True if card is correct color and rank
@@ -126,7 +125,7 @@ public class Board implements Use_cases {
 	public Board(boolean shuffle, boolean deal) {
 		tableau = new ArrayList<Column>();
 		foundations = new ArrayList<Stack<Card>>();
-		deck = new Deck(Deck.deck_name, shuffle);
+		deck = new Deck(Deck.DECK_NAME, shuffle);
 		card_queue = new ArrayDeque<Card>();
 		
 		// Add empty Columns

@@ -13,7 +13,7 @@ import java.io.FileNotFoundException;
 
 public class Deck {
 
-	public final static String deck_name = "deck";
+	public static final String DECK_NAME = "deck";
 	private final int DECK_SIZE = 52;
 	private Card[] cards = new Card[DECK_SIZE];
 	private Vector<Integer> order = new Vector<Integer>(DECK_SIZE);

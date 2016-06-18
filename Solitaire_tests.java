@@ -22,7 +22,7 @@ public class Solitaire_tests {
 		System.out.println("Begin test_Card");
 		// Create an Ace of Clubs
 		Card card1 = new Card(Rank.ACE, Suit.CLUBS);
-		assert(card1.get_color() == "Black");
+		assert(card1.get_color() == Card.BLACK);
 		assert(card1.get_rank() == Rank.ACE);
 		assert(card1.get_suit() == Suit.CLUBS);
 		assert(card1.get_rank_num() == 1);
@@ -34,15 +34,15 @@ public class Solitaire_tests {
 	public static void test_Deck() {
 		System.out.println("Begin test_Deck");
 		// Load default deck, no shuffle
-		Deck deck = new Deck(Deck.deck_name, false);
+		Deck deck = new Deck(Deck.DECK_NAME, false);
 		Card top = deck.top();
-		assert(top.get_color() == "Black");
+		assert(top.get_color() == Card.BLACK);
 		assert(top.get_rank() == Rank.ACE);
 		assert(top.get_suit() == Suit.SPADES);
 		assert(top.get_rank_num() == 1);
 		deck.deal_one();
 		top = deck.top();
-		assert(top.get_color() == "Black");
+		assert(top.get_color() == Card.BLACK);
 		assert(top.get_rank() == Rank.TWO);
 		assert(top.get_suit() == Suit.SPADES);
 		assert(top.get_rank_num() == 2);
