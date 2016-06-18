@@ -35,11 +35,11 @@ public class Board {
 		public Stack<Card> pile;
 	}
 
-	private ArrayList<Column> columns;
-	private ArrayList<Pile> finish_piles;
-	private Stack<Card> flip_piles;
-	protected Deck deck; // Protected for debug purposes
-	protected ArrayDeque<Card> card_queue; // addLast and removeFirst
+	private ArrayList<Column> columns; // Face up
+	private ArrayList<Pile> finish_piles; // 4 stacks, starting with Ace
+	private Stack<Card> flip_piles; // Face down
+	protected Deck deck; // Protected for debug purposes. The face down deck
+	protected ArrayDeque<Card> card_queue; // addLast and removeFirst. 3 cards facing up
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	// EFFECTS: Checks whether can place card in col
