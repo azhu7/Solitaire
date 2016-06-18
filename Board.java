@@ -124,6 +124,7 @@ public class Board {
 		}
 		deck = new Deck(Deck.deck_name, shuffle);
 		card_queue = new ArrayDeque<Card>();
+		// TODO: Add flip Piles
 	}
 	
 	// MODIFIES: this

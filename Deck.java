@@ -20,7 +20,7 @@ public class Deck {
 	private Vector<Boolean> used = new Vector<Boolean>(DECK_SIZE);
 	private int current = 0; // 0 is top of deck. Current should never be a used card
 	
-	// TODO: update used vector for all actions
+	// TODO: update used vector for all actions. or remove card from deck instead
 
 	// MODIFIES this
 	// EFFECTS populates cards and order
