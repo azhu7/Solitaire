@@ -44,7 +44,7 @@ public class Board implements Use_cases {
 			return true;
 		// If top_color is "Red"
 		boolean correct_color = card.get_color() == Card.RED;
-		if (this_column.top_color == Card.BLACK) {
+		if (this_column.top_color == Card.RED) {
 			correct_color = !correct_color;
 		}
 		// True if card is correct color and rank
@@ -163,7 +163,7 @@ public class Board implements Use_cases {
 	// REQUIRES: card_queue is not empty
 	// EFFECTS: returns card at front of card_queue
 	public Card peek_queue_card() {
-		return card_queue.peek();
+		return card_queue.getLast();
 	}
 	
 	// REQUIRES: col is [0, NUM_COLS - 1], queue is not empty
@@ -177,8 +177,7 @@ public class Board implements Use_cases {
 
 		if (valid_col_move(col, card)) {
 			col_push_card(col, card); // Add card to column
-			card_queue.removeFirst(); // Remove card from queue
-			deck.set_used(card); // Set card as used
+			card_queue.removeLast(); // Remove card from queue
 			return true;
 		}
 		return false; // Invalid move
@@ -195,8 +194,7 @@ public class Board implements Use_cases {
 
 		if (valid_foundation_move(foundation_num, card)) {
 			foundation_push_card(foundation_num, card); // Add card to foundations
-			card_queue.removeFirst(); // Remove card from queue
-			deck.set_used(card); // Set card as used
+			card_queue.removeLast(); // Remove card from queue
 			return true;
 		}
 		return false; // Invalid move
@@ -212,12 +210,18 @@ public class Board implements Use_cases {
 		assert (old_col >= 0 && old_col < NUM_COLS);
 		assert (new_col >= 0 && new_col < NUM_COLS);
 		
+		// Remove card from old_col
 		Card top_card = peek_col_card(old_col);
+		col_pop_card(old_col);
+		
+		// Attempt to add to new_col
 		if (valid_col_move(new_col, top_card)) {
 			col_push_card(new_col, top_card);
-			col_pop_card(old_col);
+			//col_pop_card(old_col);
 			return true;
 		}
+		// Add card back to old_col if rejected
+		col_push_card(old_col, top_card);
 		return false; // Invalid move
 	}
 
@@ -258,26 +262,27 @@ public class Board implements Use_cases {
 	// MODIFIES: deck, card_queue
 	// EFFECTS: Adds next three cards to next_cards
 	public void get_next_three_cards() {
+		deck.add_to_dealt(card_queue);
 		card_queue.clear();
 		while (!deck.empty() && card_queue.size() != NUM_IN_QUEUE) {
-			card_queue.addLast(deck.deal_one());
+			card_queue.addFirst(deck.deal_one());
 		}
 	}
 	
 	// MODIFIES: deck, card_queue
 	// EFFECTS: Resets deck when player reaches bottom of deck
 	public void reset_deck() {
+		deck.add_to_dealt(card_queue);
 		card_queue.clear();
 		deck.reset();
 	}
 	
 	// EFFECTS: Prints out contents of card_queue
 	public void print_card_queue() {
-		String out = "";
-		for(Iterator itr = card_queue.iterator(); itr.hasNext();) {
-			out = itr.next() + " " + out; // Print in reverse order
+		for(Iterator<Card> itr = card_queue.iterator(); itr.hasNext();) {
+			System.out.print(itr.next() + " ");
 		}
-		System.out.println(out);
+		System.out.println();
 	}
 	
 	// EFFECTS: Prints out cards in piles
