@@ -52,7 +52,7 @@ public class Solitaire_tests {
 	public static void test_Board() {
 		System.out.println("Begin test_Board");
 		
-		Board board = new Board(false);
+		Board board = new Board(false, false);
 		board.get_next_three_cards();
 		board.print_card_queue();
 		Card ace_spades = new Card(Rank.ACE, Suit.SPADES);
@@ -79,19 +79,18 @@ public class Solitaire_tests {
 		assert(board.peek_col_card(0).equals(ace_spades));
 		// Status: ace_spades in col 0; two_spades, ace_hearts in col 2
 
-
 		// Move ace_hearts to pile 0
-		assert(board.col_to_pile(2, 0));
-		assert(board.peek_finish_pile_card(0).equals(ace_hearts));
+		assert(board.col_to_foundation(2, 0));
+		assert(board.peek_foundation_card(0).equals(ace_hearts));
 		// Invalid move
-		assert(!board.col_to_pile(0, 0));
+		assert(!board.col_to_foundation(0, 0));
 		// Card queue should be empty now
 		assert(board.card_queue.isEmpty());
 		board.get_next_three_cards();
 		board.print_card_queue();
 		// Move two_hearts to pile 0
-		assert(board.deck_to_pile(0, two_hearts));
-		assert(board.peek_finish_pile_card(0) == two_hearts);
+		assert(board.deck_to_foundation(0, two_hearts));
+		assert(board.peek_foundation_card(0) == two_hearts);
 		
 		//TODO: test moving col to same col
 		
@@ -100,7 +99,7 @@ public class Solitaire_tests {
 	
 	public static void test_Queue() {
 		System.out.println("Begin test_Queue()");
-		Board board = new Board(false);
+		Board board = new Board(false, false);
 		// Print through end of deck
 		for (int i = 0; i < 18; ++i) {
 			board.get_next_three_cards();

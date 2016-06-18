@@ -9,35 +9,26 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
 
-public class Board {
+public class Board implements Use_cases {
 	// TODO: change assert statements to throw exceptions instead. Driver catches.
-	// TODO: implement flip_piles...oops
 	private final int NUM_COLS = 7;
-	private final int NUM_PILES = 4;
-	private final int NUM_CARDS_IN_QUEUE = 3;
+	private final int NUM_FOUNDATIONS = 4;
+	private final int NUM_IN_QUEUE = 3;
 
 	// A column in the game board
 	private class Column {
 		public Column() {
 			column = new ArrayDeque<Card>();
+			pile = new Stack<Card>();
 		}
-
+		
+		public Stack<Card> pile;
 		public ArrayDeque<Card> column;
 		public String top_color = null;
 	}
 
-	// A pile in the game board
-	private class Pile {
-		public Pile() {
-			pile = new Stack<Card>();
-		}
-
-		public Stack<Card> pile;
-	}
-
-	private ArrayList<Column> columns; // Face up
-	private ArrayList<Pile> finish_piles; // 4 stacks, starting with Ace
-	private Stack<Card> flip_piles; // Face down
+	private ArrayList<Column> tableau; // Face up
+	private ArrayList<Stack<Card>> foundations; // 4 stacks, starting with Ace
 	protected Deck deck; // Protected for debug purposes. The face down deck
 	protected ArrayDeque<Card> card_queue; // addLast and removeFirst. 3 cards facing up
 
@@ -47,7 +38,7 @@ public class Board {
 		// Assert REQUIRES statement
 		assert (col >= 0 && col < NUM_COLS);
 
-		Column this_column = columns.get(col);
+		Column this_column = tableau.get(col);
 		// Column is empty
 		if (this_column.column.isEmpty())
 			return true;
@@ -63,45 +54,53 @@ public class Board {
 		return correct_color && correct_rank;
 	}
 	
-	// REQUIRES: pile_num is [0, NUM_PILES - 1]
-	// EFFECTS: Checks whether can place card in finish_piles
-	private boolean valid_pile_move(final int pile_num, final Card card) {
-		Stack<Card> this_pile = finish_piles.get(pile_num).pile;
+	// REQUIRES: pile_num is [0, NUM_FOUNDATIONS - 1]
+	// EFFECTS: Checks whether can place card in foundations
+	private boolean valid_foundation_move(final int pile_num, final Card card) {
+		Stack<Card> this_pile = foundations.get(pile_num);
 		if (this_pile.isEmpty()) {
 			// True if card is an Ace
 			return card.get_rank() == Rank.ACE;
 		}
 		else {
 			// True if card is same suit and one rank higher
-			boolean correct_suit = card.get_suit() == peek_finish_pile_card(pile_num).get_suit();
+			boolean correct_suit = card.get_suit() == peek_foundation_card(pile_num).get_suit();
 			boolean correct_rank = card.get_rank_num() == this_pile.peek().get_rank_num() + 1;
 			return correct_suit && correct_rank;
 		}
 	}
 
 	// REQUIRES col is [0, NUM_COLS - 1]
-	// MODIFIES columns
-	// EFFECTS adds card to selected column
+	// MODIFIES tableau
+	// EFFECTS Adds card to selected column
 	private void col_push_card(final int col, final Card card) {
-		Column this_col = columns.get(col);
+		Column this_col = tableau.get(col);
 		this_col.column.push(card);
 		this_col.top_color = card.get_color();
 	}
 	
-	// REQUIRES pile_num is [0, NUM_PILES - 1]
-	// MODIFIES finish_piles
-	// EFFECTS adds card to selected finish_pile
+	// REQUIRES foundation_num is [0, NUM_FOUNDATIONS - 1]
+	// MODIFIES foundations
+	// EFFECTS Adds card to selected foundation
+	private void foundation_push_card(final int foundation_num, final Card card) {
+		Stack<Card> this_foundation = foundations.get(foundation_num);
+		this_foundation.push(card);
+	}
+	
+	// REQUIRES pile_num is [0, NUM_FOUNDATIONS - 1]
+	// MODIFIES tableau
+	// EFFECTS Adds card to selected pile. Use for dealing.
 	private void pile_push_card(final int pile_num, final Card card) {
-		Pile this_pile = finish_piles.get(pile_num);
-		this_pile.pile.push(card);
+		Stack<Card> this_pile = tableau.get(pile_num).pile;
+		this_pile.push(card);
 	}
 
 	// REQUIRES col is [0, NUM_COLS - 1].
 	//			col is not empty
-	// MODIFIES columns
-	// EFFECTS removes card from selected column
-	private void pop_card(final int col) {
-		Column this_col = columns.get(col);
+	// MODIFIES tableau
+	// EFFECTS Removes card from selected column. Updates color.
+	private void col_pop_card(final int col) {
+		Column this_col = tableau.get(col);
 		this_col.column.pop();
 		if (!this_col.column.isEmpty())
 			this_col.top_color = this_col.column.peek().get_color();
@@ -109,42 +108,57 @@ public class Board {
 			this_col.top_color = null;
 	}
 
-	// MODIFIES: this
-	// EFFECTS: Initializes board, shuffle=false for debug
-	public Board(boolean shuffle) {
-		columns = new ArrayList<Column>();
-		finish_piles = new ArrayList<Pile>();
-		// Add empty Columns
+	// MODIFIES tableau, deck
+	// EFFECTS Deals cards from deck to tableau
+	private void deal_new_game() {
+		// Face up for current column, then face down for rest of columns
+		// Column 0 should have 1 card, column 6 should have 7 cards
 		for (int i = 0; i < NUM_COLS; ++i) {
-			columns.add(new Column());
+			col_push_card(i, deck.deal_one());
+			for (int j = i + 1; j < NUM_COLS; ++j) {
+				pile_push_card(j, deck.deal_one());
+			}
 		}
-		// Add empty Piles
-		for (int j = 0; j < NUM_PILES; ++j) {
-			finish_piles.add(new Pile());
-		}
+	}
+	
+	// MODIFIES: this
+	// EFFECTS: Initializes board, shuffle=empty=false for debug
+	public Board(boolean shuffle, boolean deal) {
+		tableau = new ArrayList<Column>();
+		foundations = new ArrayList<Stack<Card>>();
 		deck = new Deck(Deck.deck_name, shuffle);
 		card_queue = new ArrayDeque<Card>();
-		// TODO: Add flip Piles
+		
+		// Add empty Columns
+		for (int i = 0; i < NUM_COLS; ++i) {
+			tableau.add(new Column());
+		}
+		// Add empty Piles
+		for (int j = 0; j < NUM_FOUNDATIONS; ++j) {
+			foundations.add(new Stack<Card>());
+		}
+		if (deal)
+			deal_new_game();
 	}
 	
 	// MODIFIES: this
 	// EFFECTS: Initialize generic board
 	public Board() {
-		this(false);
+		this(true, true);
 	}
 	
 	// REQUIRES: col is [0, NUM_COLS - 1].
 	//			 col is not empty
-	// EFFECTS: returns bottom card in selected column
+	// EFFECTS: Returns bottom card in selected column
 	public Card peek_col_card(final int col) {
-		return columns.get(col).column.peek();
+		return tableau.get(col).column.peek();
 	}
 	
-	// REQUIRES: pile is [0, NUM_PILES - 1].
-	//			 finish_piles is not empty
-	// EFFECTS: returns card on top of selected pile
-	public Card peek_finish_pile_card(final int pile_num) {
-		return finish_piles.get(pile_num).pile.peek();
+	// REQUIRES: foundation is [0, NUM_FOUNDATIONS - 1].
+	//			 foundations is not empty
+	// EFFECTS: Returns card on top of selected foundation
+	public Card peek_foundation_card(final int foundation_num) {
+		return foundations.get(foundation_num).peek();
 	}
 
 	// REQUIRES: card_queue is not empty
@@ -171,17 +185,17 @@ public class Board {
 		return false; // Invalid move
 	}
 	
-	// REQUIRES: pile_num is [0, NUM_PILES - 1], queue is not empty
-	// MODIFIES: finish_piles, card_queue
-	// EFFECTS: Places card on finish_piles if valid
+	// REQUIRES: foundation_num is [0, NUM_FOUNDATIONS - 1], queue is not empty
+	// MODIFIES: foundations, card_queue
+	// EFFECTS: Places card on foundations if valid
 	//			Returns false if invalid
-	public boolean deck_to_pile(final int pile_num, final Card card) {
+	public boolean deck_to_foundation(final int foundation_num, final Card card) {
 		// Assert REQUIRES statement
-		assert (pile_num >= 0 && pile_num < NUM_PILES);
+		assert (foundation_num >= 0 && foundation_num < NUM_FOUNDATIONS);
 		assert (!card_queue.isEmpty());
 
-		if (valid_pile_move(pile_num, card)) {
-			pile_push_card(pile_num, card); // Add card to finish_piles
+		if (valid_foundation_move(foundation_num, card)) {
+			foundation_push_card(foundation_num, card); // Add card to foundations
 			card_queue.removeFirst(); // Remove card from queue
 			deck.set_used(card); // Set card as used
 			return true;
@@ -202,25 +216,41 @@ public class Board {
 		Card top_card = peek_col_card(old_col);
 		if (valid_col_move(new_col, top_card)) {
 			col_push_card(new_col, top_card);
-			pop_card(old_col);
+			col_pop_card(old_col);
 			return true;
 		}
 		return false; // Invalid move
 	}
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
-	//			 pile_num is [0, NUM_PILES - 1]
-	// MODIFIES: columns, piles
-	// EFFECTS: Moves card from column to finish_piles if valid
+	//			 foundation_num is [0, NUM_FOUNDATIONS - 1]
+	// MODIFIES: columns, foundations
+	// EFFECTS: Moves card from column to foundations if valid
 	//			Returns false if invalid move
-	public boolean col_to_pile(final int col, final int pile_num) {
+	public boolean col_to_foundation(final int col, final int foundation_num) {
 		assert (col >= 0 && col < NUM_COLS);
-		assert (pile_num >= 0 && pile_num < NUM_PILES);
+		assert (foundation_num >= 0 && foundation_num < NUM_FOUNDATIONS);
 		
 		Card top_card = peek_col_card(col);
-		if (valid_pile_move(pile_num, top_card)) {
-			pop_card(col);
-			pile_push_card(pile_num, top_card);
+		if (valid_foundation_move(foundation_num, top_card)) {
+			col_pop_card(col);
+			foundation_push_card(foundation_num, top_card);
+			return true;
+		}
+		return false;
+	}
+	
+	// REQUIRES: col is [0, NUM_COLS - 1]
+	//			 flip_pile[col] is not empty
+	// MODIFIES: tableau
+	public boolean flip_to_col(final int col) {
+		assert(col >= 0 && col < NUM_COLS);
+		Column this_col = tableau.get(col);
+		assert(!this_col.pile.isEmpty());
+		Card top_card = this_col.pile.peek();
+		if (valid_col_move(col, top_card)) {
+			this_col.pile.pop();
+			col_push_card(col, top_card);
 			return true;
 		}
 		return false;
@@ -230,7 +260,7 @@ public class Board {
 	// EFFECTS: Adds next three cards to next_cards
 	public void get_next_three_cards() {
 		card_queue.clear();
-		while (!deck.empty() && card_queue.size() != 3) {
+		while (!deck.empty() && card_queue.size() != NUM_IN_QUEUE) {
 			card_queue.addLast(deck.deal_one());
 		}
 	}
@@ -251,13 +281,18 @@ public class Board {
 		System.out.println(out);
 	}
 	
+	// EFFECTS: Prints out cards in piles
+	public void print_piles() {
+		
+	}
+	
 	// EFFECTS: Prints out contents of columns
 	public void print_columns() {
 		
 	}
 	
-	// EFFECTS: Prints out top of each pile
-	public void print_piles() {
+	// EFFECTS: Prints out top of each foundation
+	public void print_foundations() {
 		
 	}
 	
@@ -265,5 +300,7 @@ public class Board {
 	public void print_board() {
 		// TODO
 	}
+
+
 
 }
