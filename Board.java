@@ -27,7 +27,7 @@ public class Board implements Use_cases {
 		public String top_color = null;
 	}
 
-	private ArrayList<Column> tableau; // Face up
+	private ArrayList<Column> tableau; // .column = face up, .pile = face down
 	private ArrayList<Stack<Card>> foundations; // 4 stacks, starting with Ace
 	protected Deck deck; // Protected for debug purposes. The face down deck
 	protected ArrayDeque<Card> card_queue; // addLast and removeFirst. 3 cards facing up
@@ -287,24 +287,44 @@ public class Board implements Use_cases {
 	
 	// EFFECTS: Prints out cards in piles
 	public void print_piles() {
-		
+		for(int i = 0; i < NUM_COLS; ++i) {
+			System.out.print(" " + tableau.get(i).pile.size() + "| ");
+		}
 	}
 	
 	// EFFECTS: Prints out contents of columns
 	public void print_columns() {
+		// Find len of longest column
+		int max = 0;
+		for(int i = 0; i < NUM_COLS; ++i) {
+			int len = tableau.get(i).column.size();
+			if (len > max) {
+				max = len;
+			}
+		}
 		
+		//Iterator<Card>[] itr = new Iterator<Card>[NUM_COLS];
+		
+		// Print cards in columns, skipping if null
+		for(int j = 0; j < max;  ++j) { // Iterate vertically
+			for(int k = 0; k < NUM_COLS; ++k) { // Iterate horizontally
+				Iterator<Card> itr = tableau.get(k).column.iterator();
+				if itr 
+			}	
+		}
 	}
 	
-	// EFFECTS: Prints out top of each foundation
+	// EFFECTS: Prints out top of each foundation (
 	public void print_foundations() {
-		
+		for(int i = 0; i < NUM_FOUNDATIONS; ++i) {
+			String ranksym = Deck.peek_foundation_card(i).get_rank_symbol();
+			String suitletter = Deck.peek_foundation_card(i).suitLetter();
+			System.out.printf(" %s%s ", ranksym, suitletter);
+		}
 	}
 	
 	// EFFECTS: Prints board layout
 	public void print_board() {
-		// TODO
+		
 	}
-
-
-
 }

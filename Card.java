@@ -75,6 +75,23 @@ public class Card {
 		return this.rank_num;
 	}
 	
+	public String get_rank_symbol() {
+		String symbol = String.valueOf(this.rank_num);
+		if (symbol == "1") {
+			return "A";
+		}
+		else if (symbol == "11") {
+			return "J";
+		}
+		else if (symbol == "12") {
+			return "Q";
+		}
+		else if (symbol == "13") {
+			return "K";
+		}
+		return symbol;
+	}
+	
 	public Suit get_suit() {
 		return this.suit;
 	}
@@ -133,6 +150,10 @@ public class Card {
 		if (suit != other.suit)
 			return false;
 		return true;
+	}
+	
+	public String suitLetter() {
+		return ("" + suit).substring(0,1);
 	}
 	
 	public String toString() {
