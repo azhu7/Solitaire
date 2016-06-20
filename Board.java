@@ -316,9 +316,10 @@ public class Board implements Use_cases {
 			for (int l = 0; l < NUM_COLS; ++l) { // Iterate horizontally
 				if (itr.get(l).hasNext()) {
 					Card current = itr.get(l).next();
-					String ranksym = current.get_rank_symbol();
-					String suitletter = current.suitLetter();
-					System.out.printf(" %s%s ", ranksym, suitletter);
+					//String ranksym = current.get_rank_symbol();
+					//String suitletter = current.suitLetter();
+					//System.out.printf(" %s%s ", ranksym, suitletter);
+					System.out.print(current);
 				}
 				else {
 					continue;
@@ -331,9 +332,11 @@ public class Board implements Use_cases {
 	// EFFECTS: Prints out top of each foundation
 	public void print_foundations() {
 		for(int i = 0; i < NUM_FOUNDATIONS; ++i) {
-			String ranksym = peek_foundation_card(i).get_rank_symbol();
-			String suitletter = peek_foundation_card(i).suitLetter();
-			System.out.printf(" %s%s ", ranksym, suitletter);
+			Card current = peek_foundation_card(i);
+			//String ranksym = current.get_rank_symbol();
+			//String suitletter = current.suitLetter();
+			//System.out.printf(" %s%s ", ranksym, suitletter);
+			System.out.print(current);
 		}
 		System.out.println();
 	}

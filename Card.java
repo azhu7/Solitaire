@@ -101,7 +101,7 @@ public class Card {
 	}
 
 	// REQUIRES using default deck
-	// EFFECTS returns index in deck
+	// EFFECTS Returns index in deck. Used in Deck methods
 	public int get_deck_index() {
 		int index = get_rank_num() - 1;
 		// Continually adds 13 based on suit
@@ -153,11 +153,12 @@ public class Card {
 	}
 	
 	public String suitLetter() {
-		return ("" + suit).substring(0,1);
+		return (suit.toString()).substring(0,1);
 	}
 	
 	public String toString() {
-		return "/" + rank + " of " + suit + '\\';
+		//return "/" + rank + " of " + suit + '\\';
+		return " " + this.get_rank_symbol() + this.suitLetter() + " ";
 	}
 
 }
