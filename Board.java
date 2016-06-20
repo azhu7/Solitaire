@@ -8,6 +8,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
+import java.util.ArrayList;
 
 public class Board implements Use_cases {
 	// TODO: change assert statements to throw exceptions instead. Driver catches.
@@ -287,44 +288,71 @@ public class Board implements Use_cases {
 	
 	// EFFECTS: Prints out cards in piles
 	public void print_piles() {
-		for(int i = 0; i < NUM_COLS; ++i) {
+		for (int i = 0; i < NUM_COLS; ++i) {
 			System.out.print(" " + tableau.get(i).pile.size() + "| ");
 		}
+		System.out.println();
 	}
 	
 	// EFFECTS: Prints out contents of columns
 	public void print_columns() {
 		// Find len of longest column
 		int max = 0;
-		for(int i = 0; i < NUM_COLS; ++i) {
+		for (int i = 0; i < NUM_COLS; ++i) {
 			int len = tableau.get(i).column.size();
 			if (len > max) {
 				max = len;
 			}
 		}
 		
-		//Iterator<Card>[] itr = new Iterator<Card>[NUM_COLS];
+		//create ArrayList of Iterators to reference in double for loop
+		ArrayList<Iterator<Card>> itr = new ArrayList<Iterator<Card>>();
+		for (int j = 0; j < NUM_COLS; ++j) {
+			itr.add(tableau.get(j).column.iterator());
+		}
 		
 		// Print cards in columns, skipping if null
-		for(int j = 0; j < max;  ++j) { // Iterate vertically
-			for(int k = 0; k < NUM_COLS; ++k) { // Iterate horizontally
-				Iterator<Card> itr = tableau.get(k).column.iterator();
-				if itr 
+		for (int k = 0; k < max;  ++k) { // Iterate vertically
+			for (int l = 0; l < NUM_COLS; ++l) { // Iterate horizontally
+				if (itr.get(l).hasNext()) {
+					Card current = itr.get(l).next();
+					String ranksym = current.get_rank_symbol();
+					String suitletter = current.suitLetter();
+					System.out.printf(" %s%s ", ranksym, suitletter);
+				}
+				else {
+					continue;
+				}
 			}	
 		}
+		System.out.println();
 	}
 	
-	// EFFECTS: Prints out top of each foundation (
+	// EFFECTS: Prints out top of each foundation
 	public void print_foundations() {
 		for(int i = 0; i < NUM_FOUNDATIONS; ++i) {
-			String ranksym = Deck.peek_foundation_card(i).get_rank_symbol();
-			String suitletter = Deck.peek_foundation_card(i).suitLetter();
+			String ranksym = peek_foundation_card(i).get_rank_symbol();
+			String suitletter = peek_foundation_card(i).suitLetter();
 			System.out.printf(" %s%s ", ranksym, suitletter);
 		}
+		System.out.println();
+	}
+	
+	// EFFECTS: Prints out number of cards left in deck
+	public void print_deck_size() {
+		int size = deck.remaining();
+		System.out.println(size);
 	}
 	
 	// EFFECTS: Prints board layout
 	public void print_board() {
-		
+		System.out.println("Initializing print_board");
+		System.out.print("Hello");
+		print_deck_size();
+		System.out.println("Foundations: ");
+		print_foundations();
+		System.out.print("Tableau: ");
+		print_piles();
+		print_columns();
 	}
 }

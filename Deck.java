@@ -163,4 +163,7 @@ public class Deck {
 		dealt.clear();
 	}
 
+	public int remaining() {
+		return cards.size();
+	}
 }
