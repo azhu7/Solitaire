@@ -26,8 +26,7 @@ public class Solitaire_tests {
 		assert(card1.get_rank() == Rank.ACE);
 		assert(card1.get_suit() == Suit.CLUBS);
 		assert(card1.get_rank_num() == 1);
-		System.out.println(card1.get_deck_index());
-		
+		System.out.println("/ACE of CLUBS\\ is at index " + card1.get_deck_index());
 		System.out.println("test_Card passed");
 	}
 
