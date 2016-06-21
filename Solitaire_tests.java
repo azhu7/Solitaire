@@ -14,6 +14,7 @@ public class Solitaire_tests {
 		test_Deck();
 		test_Board();
 		test_Queue();
+		test_Print();
 		
 		System.out.println("All tests passed!");
 	}
@@ -26,6 +27,7 @@ public class Solitaire_tests {
 		assert(card1.get_rank() == Rank.ACE);
 		assert(card1.get_suit() == Suit.CLUBS);
 		assert(card1.get_rank_num() == 1);
+		assert(card1.get_rank_symbol() == "A");
 		System.out.println("/ACE of CLUBS\\ is at index " + card1.get_deck_index());
 		System.out.println("test_Card passed");
 	}
@@ -111,6 +113,19 @@ public class Solitaire_tests {
 		assert(board.deck.empty());
 		// TODO: finish this test case
 		System.out.println("test_Queue() passed");
+	}
+	
+	public static void test_Print() {
+		Board board = new Board(false, true);
+		board.print_board();
+		board.get_next_three_cards();
+		board.print_board();
+		board.get_next_three_cards();
+		board.print_board();
+		board.reset_deck();
+		board.print_board();
+		board.get_next_three_cards();
+		board.print_board();
 	}
 
 }

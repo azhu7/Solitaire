@@ -137,6 +137,8 @@ public class Deck {
 	}
 	
 	public void add_to_dealt(ArrayDeque<Card> card_queue) {
+		card_queue.addAll(dealt);
+		dealt.clear();
 		dealt.addAll(card_queue);
 	}
 

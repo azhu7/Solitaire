@@ -148,22 +148,28 @@ public class Board implements Use_cases {
 	}
 	
 	// REQUIRES: col is [0, NUM_COLS - 1].
-	//			 col is not empty
 	// EFFECTS: Returns bottom card in selected column
+	//			Returns null if empty
 	public Card peek_col_card(final int col) {
+		if (tableau.get(col).column.isEmpty())
+			return null;
 		return tableau.get(col).column.peek();
 	}
 	
 	// REQUIRES: foundation is [0, NUM_FOUNDATIONS - 1].
-	//			 foundations is not empty
 	// EFFECTS: Returns card on top of selected foundation
+	//			Returns null if empty
 	public Card peek_foundation_card(final int foundation_num) {
+		if (foundations.get(foundation_num).isEmpty())
+			return null;
 		return foundations.get(foundation_num).peek();
 	}
 
-	// REQUIRES: card_queue is not empty
-	// EFFECTS: returns card at front of card_queue
+	// EFFECTS: Returns card at front of card_queue
+	//			Returns null if empty
 	public Card peek_queue_card() {
+		if (card_queue.isEmpty())
+			return null;
 		return card_queue.getLast();
 	}
 	
@@ -210,6 +216,7 @@ public class Board implements Use_cases {
 		// Assert REQUIRES statement
 		assert (old_col >= 0 && old_col < NUM_COLS);
 		assert (new_col >= 0 && new_col < NUM_COLS);
+		assert (!tableau.get(old_col).column.isEmpty());
 		
 		// Remove card from old_col
 		Card top_card = peek_col_card(old_col);
@@ -228,12 +235,14 @@ public class Board implements Use_cases {
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	//			 foundation_num is [0, NUM_FOUNDATIONS - 1]
+	//			 col is not empty
 	// MODIFIES: columns, foundations
 	// EFFECTS: Moves card from column to foundations if valid
 	//			Returns false if invalid move
 	public boolean col_to_foundation(final int col, final int foundation_num) {
 		assert (col >= 0 && col < NUM_COLS);
 		assert (foundation_num >= 0 && foundation_num < NUM_FOUNDATIONS);
+		assert (!tableau.get(col).column.isEmpty());
 		
 		Card top_card = peek_col_card(col);
 		if (valid_foundation_move(foundation_num, top_card)) {
@@ -246,11 +255,13 @@ public class Board implements Use_cases {
 	
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	//			 flip_pile[col] is not empty
+	//			 col is empty
 	// MODIFIES: tableau
 	public boolean flip_to_col(final int col) {
 		assert(col >= 0 && col < NUM_COLS);
 		Column this_col = tableau.get(col);
 		assert(!this_col.pile.isEmpty());
+		assert(this_col.column.isEmpty());
 		Card top_card = this_col.pile.peek();
 		if (valid_col_move(col, top_card)) {
 			this_col.pile.pop();
@@ -336,7 +347,10 @@ public class Board implements Use_cases {
 			//String ranksym = current.get_rank_symbol();
 			//String suitletter = current.suitLetter();
 			//System.out.printf(" %s%s ", ranksym, suitletter);
-			System.out.print(current);
+			if (current == null)
+				System.out.print(" -- ");
+			else
+				System.out.print(current);
 		}
 		System.out.println();
 	}
@@ -350,11 +364,12 @@ public class Board implements Use_cases {
 	// EFFECTS: Prints board layout
 	public void print_board() {
 		System.out.println("Initializing print_board");
-		System.out.print("Hello");
 		print_deck_size();
-		System.out.println("Foundations: ");
+		System.out.print("Card queue: ");
+		print_card_queue();
+		System.out.print("Foundations: ");
 		print_foundations();
-		System.out.print("Tableau: ");
+		System.out.println("Tableau: ");
 		print_piles();
 		print_columns();
 	}

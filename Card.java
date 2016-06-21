@@ -76,20 +76,20 @@ public class Card {
 	}
 	
 	public String get_rank_symbol() {
-		String symbol = String.valueOf(this.rank_num);
-		if (symbol == "1") {
+		int symbol = this.rank_num;
+		if (symbol == 1) {
 			return "A";
 		}
-		else if (symbol == "11") {
+		else if (symbol == 11) {
 			return "J";
 		}
-		else if (symbol == "12") {
+		else if (symbol == 12) {
 			return "Q";
 		}
-		else if (symbol == "13") {
+		else if (symbol == 13) {
 			return "K";
 		}
-		return symbol;
+		return Integer.toString(symbol);
 	}
 	
 	public Suit get_suit() {
