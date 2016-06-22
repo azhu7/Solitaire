@@ -17,16 +17,17 @@ public class Driver {
 		while (true) {
 			System.out.println("Choose an action:");
 			System.out.println("[1 - Deck to Col] [2 - Deck to Foundation]");
-			System.out.println("[3 - Flip pile card] [4 - Col to Col]");
+			System.out.println("[3 - Flip Pile Card] [4 - Col to Col]");
 			System.out.println("[5 - Col to Foundation] [6 - Next 3 cards]");
-			System.out.println("[7 - Reset deck]");
+			System.out.println("[7 - Reset Deck] [8 - Quit Game]");
 			boolean valid_choice = false;
 			while (!valid_choice) {
 				int choice = in.nextInt();
 				switch (choice) {
+				// Deck to Col
 				case 1: {
 					if (board.card_queue.isEmpty()) {
-						System.out.println("Error: card queue is empty. Select a different option.");
+						System.err.println("Error: card queue is empty. Select a different option.");
 						break;
 					}
 					Card top_card = board.peek_queue_card();
@@ -38,16 +39,17 @@ public class Driver {
 							board.deck_to_col(col, top_card);
 							valid_move = true;
 						} catch (IndexOutOfBoundsException ex) {
-							System.out.println("Error: invalid index. Select a different index.");
+							System.err.println("Error: invalid index. Select a different index.");
 							col = in.nextInt();
 						}
 					}
 					valid_choice = true;
 					break;
 				}
+				// Deck to Foundation
 				case 2: {
 					if (board.card_queue.isEmpty()) {
-						System.out.println("Error: card queue is empty. Select a different option.");
+						System.err.println("Error: card queue is empty. Select a different option.");
 						break;
 					}
 					Card top_card = board.peek_queue_card();
@@ -59,7 +61,7 @@ public class Driver {
 							board.deck_to_foundation(col, top_card);
 							valid_move = true;
 						} catch (IndexOutOfBoundsException ex) {
-							System.out.println("Error: invalid index. Select a different index.");
+							System.err.println("Error: invalid index. Select a different index.");
 						} finally {
 							col = in.nextInt();
 						}
@@ -67,6 +69,7 @@ public class Driver {
 					valid_choice = true;
 					break;
 				}
+				// Flip pile card
 				case 3: {
 					System.out.print("Which pile to flip? ");
 					int pile_num = in.nextInt();
@@ -78,11 +81,11 @@ public class Driver {
 							board.flip_to_col(pile_num);
 							valid_move = true;
 						} catch (IndexOutOfBoundsException ex) {
-							System.out.println("Error: invalid index. Select a different index.");
+							System.err.println("Error: invalid index. Select a different index.");
 						} /*catch (EmptyPileException ex) {
-							System.out.println("Error: pile is empty. Select a different pile");
+							System.err.println("Error: pile is empty. Select a different pile");
 						} catch (InvalidMoveException ex) {
-							System.out.println("Error: column is not empty. Select a different pile");
+							System.err.println("Error: column is not empty. Select a different pile");
 						} */finally {
 							pile_num = in.nextInt();
 						}
@@ -90,6 +93,7 @@ public class Driver {
 					valid_choice = true;
 					break;
 				}
+				// Col to Col
 				case 4: {
 					System.out.print("From which column to which column (# #)? ");
 					int old_col = in.nextInt();
@@ -100,7 +104,7 @@ public class Driver {
 							board.col_to_col(old_col, new_col);
 							valid_move = true;
 						} catch (IndexOutOfBoundsException ex) {
-							System.out.println("Error: invalid index. Select a different index.");
+							System.err.println("Error: invalid index. Select a different index.");
 						} // TODO: Catch more exceptions
 						finally {
 							old_col = in.nextInt();
@@ -110,6 +114,7 @@ public class Driver {
 					valid_choice = true;
 					break;
 				}
+				// Col to Foundation
 				case 5: {
 					System.out.print("From which column to which foundation (# #)? ");
 					int old_col = in.nextInt();
@@ -120,7 +125,7 @@ public class Driver {
 							board.col_to_foundation(old_col, foundation_num);
 							valid_move = true;
 						} catch (IndexOutOfBoundsException ex) {
-							System.out.println("Error: invalid index. Select a different index.");
+							System.err.println("Error: invalid index. Select a different index.");
 						} finally {
 							old_col = in.nextInt();
 							foundation_num = in.nextInt();
@@ -129,17 +134,23 @@ public class Driver {
 					valid_choice = true;
 					break;
 				}
+				// Next 3 cards
 				case 6: {
 					// TODO: Add try catch block for empty deck exception
 					board.get_next_three_cards();
 					valid_choice = true;
 					break;
 				}
+				// Reset Deck
 				case 7: {
 					// TODO: Add try catch block for non-empty deck exception
 					board.reset_deck();
 					valid_choice = true;
 					break;
+				}
+				case 8: {
+					System.out.println("Thanks for playing!");
+					System.exit(0);
 				}
 				default: {
 					System.out.println("Error: invalid choice. Select a different choice.");

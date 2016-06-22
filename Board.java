@@ -11,6 +11,7 @@ import java.util.Stack;
 import java.util.ArrayList;
 
 public class Board implements Use_cases {
+	// TODO: change use cases to throw exceptions instead of returning false
 	// TODO: change assert statements to throw exceptions instead. Driver catches.
 	private final int NUM_COLS = 7;
 	private final int NUM_FOUNDATIONS = 4;
