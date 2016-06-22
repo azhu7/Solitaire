@@ -296,7 +296,7 @@ public class Board implements Use_cases {
 		for(Iterator<Card> itr = card_queue.iterator(); itr.hasNext();) {
 			System.out.print(itr.next() + " ");
 		}
-		System.out.println();
+		System.out.println("-->"); // Indicate queue direction
 	}
 	
 	// EFFECTS: Prints out cards in piles
@@ -329,9 +329,6 @@ public class Board implements Use_cases {
 			for (int l = 0; l < NUM_COLS; ++l) { // Iterate horizontally
 				if (itr.get(l).hasNext()) {
 					Card current = itr.get(l).next();
-					//String ranksym = current.get_rank_symbol();
-					//String suitletter = current.suitLetter();
-					//System.out.printf(" %s%s ", ranksym, suitletter);
 					System.out.print(current);
 				}
 				else {
@@ -346,9 +343,6 @@ public class Board implements Use_cases {
 	public void print_foundations() {
 		for(int i = 0; i < NUM_FOUNDATIONS; ++i) {
 			Card current = peek_foundation_card(i);
-			//String ranksym = current.get_rank_symbol();
-			//String suitletter = current.suitLetter();
-			//System.out.printf(" %s%s ", ranksym, suitletter);
 			if (current == null)
 				System.out.print(" -- ");
 			else
@@ -370,11 +364,16 @@ public class Board implements Use_cases {
 		print_deck_size();
 		System.out.print("Card queue: ");
 		print_card_queue();
-		System.out.println("(Leftmost is on top)");
 		System.out.print("Foundations: ");
 		print_foundations();
 		System.out.println("Tableau: ");
 		print_piles();
 		print_columns();
+	}
+
+	
+	public boolean emptyPile(int pile_num) {
+		assert (pile_num >= 0 && pile_num < NUM_COLS);
+		return tableau.get(pile_num).pile.empty();
 	}
 }
