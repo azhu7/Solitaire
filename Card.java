@@ -80,6 +80,9 @@ public class Card {
 		if (symbol == 1) {
 			return "A";
 		}
+		else if (symbol == 10) {
+			return "10";
+		}
 		else if (symbol == 11) {
 			return "J";
 		}
@@ -157,7 +160,9 @@ public class Card {
 	}
 	
 	public String toString() {
-		//return "/" + rank + " of " + suit + '\\';
+		if (this.get_rank_symbol() == "10") {
+			return this.get_rank_symbol() + this.suitLetter() + " ";
+		}
 		return " " + this.get_rank_symbol() + this.suitLetter() + " ";
 	}
 

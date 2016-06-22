@@ -40,8 +40,9 @@ public class Board implements Use_cases {
 		assert (col >= 0 && col < NUM_COLS);
 
 		Column this_column = tableau.get(col);
-		// Column is empty
-		if (this_column.column.isEmpty())
+		// Column is empty and card is King
+		if (this_column.column.isEmpty()) // && card.get_rank() == Rank.KING)
+							// Uncomment when testing with a fully initialized tableau
 			return true;
 		// If top_color is "Red"
 		boolean correct_color = card.get_color() == Card.RED;
@@ -257,6 +258,7 @@ public class Board implements Use_cases {
 	//			 flip_pile[col] is not empty
 	//			 col is empty
 	// MODIFIES: tableau
+	// EFFECTS: flips card from top of pile when col is empty
 	public boolean flip_to_col(final int col) {
 		assert(col >= 0 && col < NUM_COLS);
 		Column this_col = tableau.get(col);
@@ -364,9 +366,11 @@ public class Board implements Use_cases {
 	// EFFECTS: Prints board layout
 	public void print_board() {
 		System.out.println("Initializing print_board");
+		System.out.print("Deck size: ");
 		print_deck_size();
 		System.out.print("Card queue: ");
 		print_card_queue();
+		System.out.println("(Leftmost is on top)");
 		System.out.print("Foundations: ");
 		print_foundations();
 		System.out.println("Tableau: ");

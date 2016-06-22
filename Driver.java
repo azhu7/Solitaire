@@ -19,26 +19,25 @@ public class Driver {
 			System.out.println("[4 - Column to Column] [5 - Column to Foundation]");
 			int choice = in.nextInt();
 			switch (choice) {
-			case 1: {
+				case 1: {
 				
-			}
-			case 2: {
+				}
+				case 2: {
 				
-			}
-			case 3:{
+				}
+				case 3:{
 				
-			}
-			case 4:{
+				}
+				case 4:{
 				
-			}
-			case 5: {
+				}
+				case 5: {
 				
-			}
-			default: {
+				}
+				default: {
 				
+				}
 			}
-			}
-				
 		}
 	}
 }
