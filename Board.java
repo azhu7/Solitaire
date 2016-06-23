@@ -179,34 +179,42 @@ public class Board implements Use_cases {
 	// MODIFIES: columns, card_queue
 	// EFFECTS: Places card in column if valid
 	//			Returns false if invalid
-	public boolean deck_to_col(final int col, final Card card) {
+	public boolean deck_to_col(final int col, final Card card) throws InvalidMoveException {
 		// Assert REQUIRES statement
-		assert (col >= 0 && col < NUM_COLS);
-		assert (!card_queue.isEmpty());
+		if (col < 0 || col >= NUM_COLS) {
+			throw new InvalidMoveException("Invalid column index");
+		}
+		else if (card_queue.isEmpty()) {
+			throw new InvalidMoveException("No cards in queue");
+		}
 
 		if (valid_col_move(col, card)) {
 			col_push_card(col, card); // Add card to column
 			card_queue.removeLast(); // Remove card from queue
 			return true;
 		}
-		return false; // Invalid move
+		throw new InvalidMoveException("Invalid move!"); // Invalid move
 	}
 	
 	// REQUIRES: foundation_num is [0, NUM_FOUNDATIONS - 1], queue is not empty
 	// MODIFIES: foundations, card_queue
 	// EFFECTS: Places card on foundations if valid
 	//			Returns false if invalid
-	public boolean deck_to_foundation(final int foundation_num, final Card card) {
+	public boolean deck_to_foundation(final int foundation_num, final Card card) throws InvalidMoveException {
 		// Assert REQUIRES statement
-		assert (foundation_num >= 0 && foundation_num < NUM_FOUNDATIONS);
-		assert (!card_queue.isEmpty());
+		if (foundation_num < 0 || foundation_num >= NUM_FOUNDATIONS) {
+			throw new InvalidMoveException("Invalid foundation index");
+		}
+		else if (card_queue.isEmpty()) {
+			throw new InvalidMoveException("No cards in queue");
+		}
 
 		if (valid_foundation_move(foundation_num, card)) {
 			foundation_push_card(foundation_num, card); // Add card to foundations
 			card_queue.removeLast(); // Remove card from queue
 			return true;
 		}
-		return false; // Invalid move
+		throw new InvalidMoveException("Invalid move!"); // Invalid move
 	}
 
 	// REQUIRES: old_col and new_col are [0, NUM_COLS - 1].
@@ -214,11 +222,17 @@ public class Board implements Use_cases {
 	// MODIFIES: columns
 	// EFFECTS: Moves card from one column to the other if valid
 	//			Returns false if invalid move
-	public boolean col_to_col(final int old_col, final int new_col) {
+	public boolean col_to_col(final int old_col, final int new_col) throws InvalidMoveException {
 		// Assert REQUIRES statement
-		assert (old_col >= 0 && old_col < NUM_COLS);
-		assert (new_col >= 0 && new_col < NUM_COLS);
-		assert (!tableau.get(old_col).column.isEmpty());
+		if (old_col < 0 || old_col >= NUM_COLS) {
+			throw new InvalidMoveException("Invalid column index");
+		}
+		else if (new_col < 0 || new_col >= NUM_COLS) {
+			throw new InvalidMoveException("Invalid column index");
+		}
+		else if (tableau.get(old_col).column.isEmpty()) {
+			throw new InvalidMoveException("No cards to move");
+		}
 		
 		// Remove card from old_col
 		Card top_card = peek_col_card(old_col);
@@ -232,7 +246,7 @@ public class Board implements Use_cases {
 		}
 		// Add card back to old_col if rejected
 		col_push_card(old_col, top_card);
-		return false; // Invalid move
+		throw new InvalidMoveException("Invalid move!"); // Invalid move
 	}
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
@@ -241,10 +255,16 @@ public class Board implements Use_cases {
 	// MODIFIES: columns, foundations
 	// EFFECTS: Moves card from column to foundations if valid
 	//			Returns false if invalid move
-	public boolean col_to_foundation(final int col, final int foundation_num) {
-		assert (col >= 0 && col < NUM_COLS);
-		assert (foundation_num >= 0 && foundation_num < NUM_FOUNDATIONS);
-		assert (!tableau.get(col).column.isEmpty());
+	public boolean col_to_foundation(final int col, final int foundation_num) throws InvalidMoveException {
+		if (col < 0 || col >= NUM_COLS) {
+			throw new InvalidMoveException("Invalid column index");
+		}
+		else if (foundation_num < 0 || foundation_num >= NUM_FOUNDATIONS) {
+			throw new InvalidMoveException("Invalid foundations index");
+		}
+		else if (tableau.get(col).column.isEmpty()) {
+			throw new InvalidMoveException("No cards to move");
+		}
 		
 		Card top_card = peek_col_card(col);
 		if (valid_foundation_move(foundation_num, top_card)) {
@@ -252,7 +272,7 @@ public class Board implements Use_cases {
 			foundation_push_card(foundation_num, top_card);
 			return true;
 		}
-		return false;
+		throw new InvalidMoveException("Invalid move!"); // Invalid move
 	}
 	
 	// REQUIRES: col is [0, NUM_COLS - 1]
@@ -260,18 +280,25 @@ public class Board implements Use_cases {
 	//			 col is empty
 	// MODIFIES: tableau
 	// EFFECTS: flips card from top of pile when col is empty
-	public boolean flip_to_col(final int col) {
-		assert(col >= 0 && col < NUM_COLS);
+	public boolean flip_to_col(final int col) throws InvalidMoveException  {
+		if (col < 0 || col >= NUM_COLS) {
+			throw new InvalidMoveException("Invalid column index");
+		}
 		Column this_col = tableau.get(col);
-		assert(!this_col.pile.isEmpty());
-		assert(this_col.column.isEmpty());
+		if (this_col.pile.isEmpty()) {
+			throw new InvalidMoveException("No cards to flip");
+		}
+		else if (!this_col.column.isEmpty()) {
+			throw new InvalidMoveException("Column not empty");
+		}
+		
 		Card top_card = this_col.pile.peek();
 		if (valid_col_move(col, top_card)) {
 			this_col.pile.pop();
 			col_push_card(col, top_card);
 			return true;
 		}
-		return false;
+		throw new InvalidMoveException("Invalid move!"); // Invalid move
 	}
 	
 	// MODIFIES: deck, card_queue
