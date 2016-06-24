@@ -24,137 +24,135 @@ public class Driver {
 			while (!valid_choice) {
 				int choice = in.nextInt();
 				switch (choice) {
-				// Deck to Col
-				case 1: {
-					if (board.card_queue.isEmpty()) {
-						System.err.println("Error: card queue is empty. Select a different option.");
+					// Deck to Col
+					case 1: {
+						if (board.card_queue.isEmpty()) {
+							System.err.println("Error: No cards in queue");
+							break;
+						}
+						Card top_card = board.peek_queue_card();
+						System.out.print("Move to which column? ");
+						int col = in.nextInt();
+						boolean valid_move = false;
+						while (!valid_move) {
+							try {
+								board.deck_to_col(col, top_card);
+								valid_move = true;
+							} catch (InvalidMoveException e) {
+								System.err.println("Error: " + e.getMessage());
+							} finally {
+								col = in.nextInt();
+							}
+						}
+						valid_choice = true;
 						break;
 					}
-					Card top_card = board.peek_queue_card();
-					System.out.print("Move to which column? ");
-					int col = in.nextInt();
-					boolean valid_move = false;
-					while (!valid_move) {
-						try {
-							board.deck_to_col(col, top_card);
-							valid_move = true;
-						} catch (IndexOutOfBoundsException ex) {
-							System.err.println("Error: invalid index. Select a different index.");
-							col = in.nextInt();
+					// Deck to Foundation
+					case 2: {
+						if (board.card_queue.isEmpty()) {
+							System.err.println("Error: No cards in queue");
+							break;
 						}
-					}
-					valid_choice = true;
-					break;
-				}
-				// Deck to Foundation
-				case 2: {
-					if (board.card_queue.isEmpty()) {
-						System.err.println("Error: card queue is empty. Select a different option.");
+						Card top_card = board.peek_queue_card();
+						System.out.print("Move to which foundation? ");
+						int col = in.nextInt();
+						boolean valid_move = false;
+						while (!valid_move) {
+							try {
+								board.deck_to_foundation(col, top_card);
+								valid_move = true;
+							} catch (InvalidMoveException e) {
+								System.err.println("Error: " + e.getMessage());
+							} finally {
+								col = in.nextInt();
+							}
+						}
+						valid_choice = true;
 						break;
 					}
-					Card top_card = board.peek_queue_card();
-					System.out.print("Move to which foundation? ");
-					int col = in.nextInt();
-					boolean valid_move = false;
-					while (!valid_move) {
-						try {
-							board.deck_to_foundation(col, top_card);
-							valid_move = true;
-						} catch (IndexOutOfBoundsException ex) {
-							System.err.println("Error: invalid index. Select a different index.");
-						} finally {
-							col = in.nextInt();
+					// Flip pile card
+					// TODO: Remove this case and call flip_to_col automatically when a column empties
+					case 3: {
+						System.out.print("Which pile to flip? ");
+						int pile_num = in.nextInt();
+						boolean valid_move = false;
+						while (!valid_move) {
+							// TODO: Add exceptions.
+							// TODO: Make sure there are piles to flip, or provide option to return to choice selection
+							try {
+								board.flip_to_col(pile_num);
+								valid_move = true;
+							} catch (InvalidMoveException e) {
+								System.err.println("Error: " + e.getMessage());
+							} finally {
+								pile_num = in.nextInt();
+							}
 						}
+						valid_choice = true;
+						break;
 					}
-					valid_choice = true;
-					break;
-				}
-				// Flip pile card
-				case 3: {
-					System.out.print("Which pile to flip? ");
-					int pile_num = in.nextInt();
-					boolean valid_move = false;
-					while (!valid_move) {
-						// TODO: Add exceptions.
-						// TODO: Make sure there are piles to flip, or provide option to return to choice selection
-						try {
-							board.flip_to_col(pile_num);
-							valid_move = true;
-						} catch (IndexOutOfBoundsException ex) {
-							System.err.println("Error: invalid index. Select a different index.");
-						} /*catch (EmptyPileException ex) {
-							System.err.println("Error: pile is empty. Select a different pile");
-						} catch (InvalidMoveException ex) {
-							System.err.println("Error: column is not empty. Select a different pile");
-						} */finally {
-							pile_num = in.nextInt();
+					// Col to Col
+					case 4: {
+						System.out.print("From which column to which column (# #)? ");
+						int old_col = in.nextInt();
+						int new_col = in.nextInt();
+						boolean valid_move = false;
+						while (!valid_move) {
+							try {
+								board.col_to_col(old_col, new_col);
+								valid_move = true;
+							} catch (InvalidMoveException e) {
+								System.err.println("Error: " + e.getMessage());
+							// TODO: Catch more exceptions? ..probably ok with messages
+							} finally {
+								old_col = in.nextInt();
+								new_col = in.nextInt();
+							}
 						}
+						valid_choice = true;
+						break;
 					}
-					valid_choice = true;
-					break;
-				}
-				// Col to Col
-				case 4: {
-					System.out.print("From which column to which column (# #)? ");
-					int old_col = in.nextInt();
-					int new_col = in.nextInt();
-					boolean valid_move = false;
-					while (!valid_move) {
-						try {
-							board.col_to_col(old_col, new_col);
-							valid_move = true;
-						} catch (IndexOutOfBoundsException ex) {
-							System.err.println("Error: invalid index. Select a different index.");
-						} // TODO: Catch more exceptions
-						finally {
-							old_col = in.nextInt();
-							new_col = in.nextInt();
+					// Col to Foundation
+					case 5: {
+						System.out.print("From which column to which foundation (# #)? ");
+						int old_col = in.nextInt();
+						int foundation_num = in.nextInt();
+						boolean valid_move = false;
+						while (!valid_move) {
+							try {
+								board.col_to_foundation(old_col, foundation_num);
+								valid_move = true;
+							} catch (InvalidMoveException e) {
+								System.err.println("Error: " + e.getMessage());
+							} finally {
+								old_col = in.nextInt();
+								foundation_num = in.nextInt();
+							}
 						}
+						valid_choice = true;
+						break;
 					}
-					valid_choice = true;
-					break;
-				}
-				// Col to Foundation
-				case 5: {
-					System.out.print("From which column to which foundation (# #)? ");
-					int old_col = in.nextInt();
-					int foundation_num = in.nextInt();
-					boolean valid_move = false;
-					while (!valid_move) {
-						try {
-							board.col_to_foundation(old_col, foundation_num);
-							valid_move = true;
-						} catch (IndexOutOfBoundsException ex) {
-							System.err.println("Error: invalid index. Select a different index.");
-						} finally {
-							old_col = in.nextInt();
-							foundation_num = in.nextInt();
-						}
+					// Next 3 cards
+					case 6: {
+						// TODO: Add try catch block for empty deck exception
+						board.get_next_three_cards();
+						valid_choice = true;
+						break;
 					}
-					valid_choice = true;
-					break;
-				}
-				// Next 3 cards
-				case 6: {
-					// TODO: Add try catch block for empty deck exception
-					board.get_next_three_cards();
-					valid_choice = true;
-					break;
-				}
-				// Reset Deck
-				case 7: {
-					// TODO: Add try catch block for non-empty deck exception
-					board.reset_deck();
-					valid_choice = true;
-					break;
-				}
-				case 8: {
-					System.out.println("Thanks for playing!");
-					System.exit(0);
-				}
-				default: {
-					System.out.println("Error: invalid choice. Select a different choice.");
-				}
+					// Reset Deck
+					case 7: {
+						// TODO: Add try catch block for non-empty deck exception
+						board.reset_deck();
+						valid_choice = true;
+						break;
+					}
+					case 8: {
+						System.out.println("Thanks for playing!");
+						System.exit(0);
+					}
+					default: {
+						System.out.println("Error: invalid choice. Select a different choice.");
+					}
 				} // switch (choice)
 				if (valid_choice)
 					board.print_board();

@@ -179,7 +179,7 @@ public class Board implements Use_cases {
 	// MODIFIES: columns, card_queue
 	// EFFECTS: Places card in column if valid
 	//			Returns false if invalid
-	public boolean deck_to_col(final int col, final Card card) throws InvalidMoveException {
+	public void deck_to_col(final int col, final Card card) throws InvalidMoveException {
 		// Assert REQUIRES statement
 		if (col < 0 || col >= NUM_COLS) {
 			throw new InvalidMoveException("Invalid column index");
@@ -189,18 +189,18 @@ public class Board implements Use_cases {
 		}
 
 		if (valid_col_move(col, card)) {
-			col_push_card(col, card); // Add card to column
-			card_queue.removeLast(); // Remove card from queue
-			return true;
+			throw new InvalidMoveException("Invalid move!"); // Invalid move
 		}
-		throw new InvalidMoveException("Invalid move!"); // Invalid move
+		// if valid move
+		col_push_card(col, card); // Add card to column
+		card_queue.removeLast(); // Remove card from queue
 	}
 	
 	// REQUIRES: foundation_num is [0, NUM_FOUNDATIONS - 1], queue is not empty
 	// MODIFIES: foundations, card_queue
 	// EFFECTS: Places card on foundations if valid
 	//			Returns false if invalid
-	public boolean deck_to_foundation(final int foundation_num, final Card card) throws InvalidMoveException {
+	public void deck_to_foundation(final int foundation_num, final Card card) throws InvalidMoveException {
 		// Assert REQUIRES statement
 		if (foundation_num < 0 || foundation_num >= NUM_FOUNDATIONS) {
 			throw new InvalidMoveException("Invalid foundation index");
@@ -210,11 +210,11 @@ public class Board implements Use_cases {
 		}
 
 		if (valid_foundation_move(foundation_num, card)) {
-			foundation_push_card(foundation_num, card); // Add card to foundations
-			card_queue.removeLast(); // Remove card from queue
-			return true;
+			throw new InvalidMoveException("Invalid move!"); // Invalid move
 		}
-		throw new InvalidMoveException("Invalid move!"); // Invalid move
+		// if valid move
+		foundation_push_card(foundation_num, card); // Add card to foundations
+		card_queue.removeLast(); // Remove card from queue
 	}
 
 	// REQUIRES: old_col and new_col are [0, NUM_COLS - 1].
@@ -222,7 +222,7 @@ public class Board implements Use_cases {
 	// MODIFIES: columns
 	// EFFECTS: Moves card from one column to the other if valid
 	//			Returns false if invalid move
-	public boolean col_to_col(final int old_col, final int new_col) throws InvalidMoveException {
+	public void col_to_col(final int old_col, final int new_col) throws InvalidMoveException {
 		// Assert REQUIRES statement
 		if (old_col < 0 || old_col >= NUM_COLS) {
 			throw new InvalidMoveException("Invalid column index");
@@ -236,17 +236,16 @@ public class Board implements Use_cases {
 		
 		// Remove card from old_col
 		Card top_card = peek_col_card(old_col);
-		col_pop_card(old_col);
 		
 		// Attempt to add to new_col
-		if (valid_col_move(new_col, top_card)) {
-			col_push_card(new_col, top_card);
-			//col_pop_card(old_col);
-			return true;
+		if (!valid_col_move(new_col, top_card)) {
+			throw new InvalidMoveException("Invalid move!"); // Invalid move
 		}
-		// Add card back to old_col if rejected
+		// if valid move
+		col_pop_card(old_col);
+		col_push_card(new_col, top_card);
 		col_push_card(old_col, top_card);
-		throw new InvalidMoveException("Invalid move!"); // Invalid move
+
 	}
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
@@ -255,7 +254,7 @@ public class Board implements Use_cases {
 	// MODIFIES: columns, foundations
 	// EFFECTS: Moves card from column to foundations if valid
 	//			Returns false if invalid move
-	public boolean col_to_foundation(final int col, final int foundation_num) throws InvalidMoveException {
+	public void col_to_foundation(final int col, final int foundation_num) throws InvalidMoveException {
 		if (col < 0 || col >= NUM_COLS) {
 			throw new InvalidMoveException("Invalid column index");
 		}
@@ -267,12 +266,12 @@ public class Board implements Use_cases {
 		}
 		
 		Card top_card = peek_col_card(col);
-		if (valid_foundation_move(foundation_num, top_card)) {
-			col_pop_card(col);
-			foundation_push_card(foundation_num, top_card);
-			return true;
+		if (!valid_foundation_move(foundation_num, top_card)) {
+			throw new InvalidMoveException("Invalid move!"); // Invalid move
 		}
-		throw new InvalidMoveException("Invalid move!"); // Invalid move
+		// if valid move
+		col_pop_card(col);
+		foundation_push_card(foundation_num, top_card);
 	}
 	
 	// REQUIRES: col is [0, NUM_COLS - 1]
@@ -280,7 +279,7 @@ public class Board implements Use_cases {
 	//			 col is empty
 	// MODIFIES: tableau
 	// EFFECTS: flips card from top of pile when col is empty
-	public boolean flip_to_col(final int col) throws InvalidMoveException  {
+	public void flip_to_col(final int col) throws InvalidMoveException  {
 		if (col < 0 || col >= NUM_COLS) {
 			throw new InvalidMoveException("Invalid column index");
 		}
@@ -293,12 +292,12 @@ public class Board implements Use_cases {
 		}
 		
 		Card top_card = this_col.pile.peek();
-		if (valid_col_move(col, top_card)) {
-			this_col.pile.pop();
-			col_push_card(col, top_card);
-			return true;
+		if (!valid_col_move(col, top_card)) {
+			throw new InvalidMoveException("Invalid move!"); // Invalid move
 		}
-		throw new InvalidMoveException("Invalid move!"); // Invalid move
+		// if valid move
+		this_col.pile.pop();
+		col_push_card(col, top_card);
 	}
 	
 	// MODIFIES: deck, card_queue
