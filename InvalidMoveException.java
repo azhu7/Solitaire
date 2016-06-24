@@ -1,7 +1,7 @@
 /*
  * Created June 22, 2016
- * Author: Alexander Zhu
- * Coauthor: Jason Zhu
+ * Author: Jason Zhu
+ * Coauthor: Alexander Zhu
  */
 
 public class InvalidMoveException extends Exception{
