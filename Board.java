@@ -22,15 +22,15 @@ public class Board implements Use_cases {
 			pile = new Stack<Card>();
 		}
 		
-		public Stack<Card> pile;
-		public ArrayDeque<Card> column;
+		public Stack<Card> pile; // Face down
+		public ArrayDeque<Card> column; // Face up
 		public String top_color = null;
 	}
 
-	private ArrayList<Column> tableau; // .column = face up, .pile = face down
-	private ArrayList<Stack<Card>> foundations; // 4 stacks, starting with Ace
-	protected Deck deck; // Protected for debug purposes. The face down deck
-	protected ArrayDeque<Card> card_queue; // addLast and removeFirst. 3 cards facing up
+	private ArrayList<Column> tableau;
+	private ArrayList<Stack<Card>> foundations;
+	protected Deck deck; // Protected for debug purposes.
+	protected ArrayDeque<Card> card_queue; // addLast and removeFirst.
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	// EFFECTS: Checks whether can place card in col
@@ -40,8 +40,7 @@ public class Board implements Use_cases {
 
 		Column this_column = tableau.get(col);
 		// Column is empty and card is King
-		if (this_column.column.isEmpty()) // && card.get_rank() == Rank.KING)
-							// Uncomment when testing with a fully initialized tableau
+		if (this_column.column.isEmpty() && card.get_rank() == Rank.KING)
 			return true;
 		// If top_color is "Red"
 		boolean correct_color = card.get_color() == Card.RED;
@@ -70,12 +69,14 @@ public class Board implements Use_cases {
 		}
 	}
 
+	// MODIFIES tableau
+	// EFFECTS pushes card to end of column deque
 	// REQUIRES col is [0, NUM_COLS - 1]
 	// MODIFIES tableau
 	// EFFECTS Adds card to selected column
 	private void col_push_card(final int col, final Card card) {
 		Column this_col = tableau.get(col);
-		this_col.column.push(card);
+		this_col.column.addLast(card);
 		this_col.top_color = card.get_color();
 	}
 	
@@ -95,15 +96,17 @@ public class Board implements Use_cases {
 		this_pile.push(card);
 	}
 
+	// MODIFIES tableau
+	// EFFECTS pops card from end of column deque
 	// REQUIRES col is [0, NUM_COLS - 1].
 	//			col is not empty
 	// MODIFIES tableau
 	// EFFECTS Removes card from selected column. Updates color.
 	private void col_pop_card(final int col) {
 		Column this_col = tableau.get(col);
-		this_col.column.pop();
+		this_col.column.removeLast();
 		if (!this_col.column.isEmpty())
-			this_col.top_color = this_col.column.peek().get_color();
+			this_col.top_color = this_col.column.getLast().get_color();
 		else
 			this_col.top_color = null;
 	}
@@ -123,7 +126,7 @@ public class Board implements Use_cases {
 	
 	// MODIFIES: this
 	// EFFECTS: Initializes board, shuffle=empty=false for debug
-	public Board(boolean shuffle, boolean deal) {
+	public Board(final boolean shuffle, final boolean deal) {
 		tableau = new ArrayList<Column>();
 		foundations = new ArrayList<Stack<Card>>();
 		deck = new Deck(Deck.DECK_NAME, shuffle);
@@ -153,7 +156,7 @@ public class Board implements Use_cases {
 	public Card peek_col_card(final int col) {
 		if (tableau.get(col).column.isEmpty())
 			return null;
-		return tableau.get(col).column.peek();
+		return tableau.get(col).column.getLast();
 	}
 	
 	// REQUIRES: foundation is [0, NUM_FOUNDATIONS - 1].
@@ -213,6 +216,25 @@ public class Board implements Use_cases {
 		card_queue.removeLast(); // Remove card from queue
 	}
 
+	// REQUIRES: col is [0, NUM_COLS - 1]
+	//			 flip_pile[col] is not empty
+	//			 col is empty
+	// MODIFIES: tableau
+	// EFFECTS: flips card from top of pile when col is empty
+	public void flip_to_col(final int col) throws InvalidMoveException  {
+		Column this_col = tableau.get(col);
+		assert(this_col.column.isEmpty());
+		assert (col >= 0 && col < NUM_COLS);
+		
+		if (this_col.pile.isEmpty()) {
+			throw new InvalidMoveException("No cards to flip");
+		}
+		
+		Card top_card = this_col.pile.peek();
+		this_col.pile.pop();
+		col_push_card(col, top_card);
+	}
+	
 	// REQUIRES: old_col and new_col are [0, NUM_COLS - 1].
 	//			 old_col is not empty
 	// MODIFIES: columns
@@ -243,6 +265,13 @@ public class Board implements Use_cases {
 		// If valid move
 		col_pop_card(old_col);
 		col_push_card(new_col, top_card);
+		
+		// If column is now empty, flip over next card
+		if (tableau.get(old_col).column.isEmpty()) {
+			try {
+				flip_to_col(old_col);
+			} catch (InvalidMoveException ex) {}
+		}
 	}
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
@@ -266,35 +295,16 @@ public class Board implements Use_cases {
 		if (!valid_foundation_move(foundation_num, top_card)) {
 			throw new InvalidMoveException("Invalid move!"); // Invalid move
 		}
-		// if valid move
+		// If valid move
 		col_pop_card(col);
 		foundation_push_card(foundation_num, top_card);
-	}
-	
-	// REQUIRES: col is [0, NUM_COLS - 1]
-	//			 flip_pile[col] is not empty
-	//			 col is empty
-	// MODIFIES: tableau
-	// EFFECTS: flips card from top of pile when col is empty
-	public void flip_to_col(final int col) throws InvalidMoveException  {
-		if (col < 0 || col >= NUM_COLS) {
-			throw new InvalidMoveException("Invalid column index");
-		}
-		Column this_col = tableau.get(col);
-		if (this_col.pile.isEmpty()) {
-			throw new InvalidMoveException("No cards to flip");
-		}
-		else if (!this_col.column.isEmpty()) {
-			throw new InvalidMoveException("Column not empty");
-		}
 		
-		Card top_card = this_col.pile.peek();
-		if (!valid_col_move(col, top_card)) {
-			throw new InvalidMoveException("Invalid move!"); // Invalid move
+		// If column is now empty, flip over next card
+		if (tableau.get(col).column.isEmpty()) {
+			try {
+				flip_to_col(col);
+			} catch (InvalidMoveException ex) {}
 		}
-		// if valid move
-		this_col.pile.pop();
-		col_push_card(col, top_card);
 	}
 	
 	// MODIFIES: deck, card_queue
@@ -356,9 +366,12 @@ public class Board implements Use_cases {
 					System.out.print(current);
 				}
 				else {
+					// Empty spot
+					System.out.print("    ");
 					continue;
 				}
-			}	
+			}
+			System.out.println();
 		}
 		System.out.println();
 	}
@@ -368,6 +381,7 @@ public class Board implements Use_cases {
 		for(int i = 0; i < NUM_FOUNDATIONS; ++i) {
 			Card current = peek_foundation_card(i);
 			if (current == null)
+				// Empty pile
 				System.out.print(" -- ");
 			else
 				System.out.print(current);
@@ -383,7 +397,7 @@ public class Board implements Use_cases {
 	
 	// EFFECTS: Prints board layout
 	public void print_board() {
-		System.out.println("Initializing print_board");
+		System.out.println("~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-");
 		System.out.print("Deck size: ");
 		print_deck_size();
 		System.out.print("Card queue: ");

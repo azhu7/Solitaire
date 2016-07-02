@@ -20,7 +20,7 @@ public class Deck {
 	// Top of deck is cards.size() - 1
 	private List<Card> cards = new ArrayList<Card>(DECK_SIZE);
 	// Holds cards that have been dealt but not used
-	private List<Card> dealt = new ArrayList<Card>(DECK_SIZE);
+	protected List<Card> dealt = new ArrayList<Card>(DECK_SIZE);
 	//private Vector<Integer> order = new Vector<Integer>(DECK_SIZE);
 	//private Vector<Boolean> used = new Vector<Boolean>(DECK_SIZE);
 	//private int current = 0; // 0 is top of deck. Current should never be a used card
@@ -163,6 +163,7 @@ public class Deck {
 		dealt.clear();
 	}
 
+	// EFFECTS Returns number of cards remaining in deck
 	public int remaining() {
 		return cards.size();
 	}
