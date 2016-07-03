@@ -8,23 +8,6 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.TreeBidiMap;
 
 public class Rank_BidiMap {
-	
-	public enum Rank {
-		ACE,
-		TWO,
-		THREE,
-		FOUR,
-		FIVE,
-		SIX,
-		SEVEN,
-		EIGHT,
-		NINE,
-		TEN,
-		JACK,
-		QUEEN,
-		KING
-	}
-	
 	private BidiMap<Rank, Integer> ranks;
 	
 	public Rank_BidiMap() {
