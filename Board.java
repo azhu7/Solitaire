@@ -281,13 +281,16 @@ public class Board implements Use_cases {
 
 		ArrayList<Card> sequence = new ArrayList<Card>();
 		for (Iterator<Card> itr = tableau.get(col).column.iterator(); itr.hasNext();) {
-			Card nextCard = itr.next();
-			if (!nextCard.equals(card)) {
-				sequence.add(0, nextCard);
+			if (itr.next().equals(card)) {
+				sequence.add(card);
+				while (itr.hasNext()) {
+					sequence.add(itr.next());
+				}
+				return sequence;
 			}
 		}
-		sequence.add(0, card);
-		return sequence;
+		assert (false);
+		return null;
 	}
 	
 	// REQUIRES: old_col and new_col are [0, NUM_COLS - 1].
@@ -314,7 +317,7 @@ public class Board implements Use_cases {
 		ArrayList<Card> sequence = get_card_sequence(old_col, card);
 
 		// Make sure last card in sequence is the specified card
-		assert(sequence.get(sequence.size() - 1).equals(card));
+		assert(sequence.get(0).equals(card));
 		
 		// Attempt to add to new_col
 		if (!valid_col_move(new_col, card)) {
@@ -386,9 +389,7 @@ public class Board implements Use_cases {
 		} else if (!card_queue.isEmpty()) {
 			throw new InvalidMoveException("Queue is not empty");
 		}
-		while (!deck.dealtIsEmpty() && card_queue.size() != NUM_IN_QUEUE) {
-			card_queue.addFirst(deck.retrieve_one());
-		}
+		card_queue.addFirst(deck.retrieve_one());
 	}
 
 	// MODIFIES: deck, card_queue

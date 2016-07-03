@@ -13,7 +13,7 @@ public class Driver {
 	public static void main(String[] args) {
 		// TODO: Init output stuff
 
-		Board board = new Board(true, true); // No shuffle for debugging
+		Board board = new Board(false, true); // No shuffle for debugging
 		board.print_board();
 		Scanner in = new Scanner(System.in);
 		while (true) {

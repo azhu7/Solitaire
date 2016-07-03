@@ -95,8 +95,7 @@ public class Deck {
 		if (dealt.isEmpty()) {
 			System.out.println("retrieve_one(); Dealt is empty");
 		}
-		Card last = dealt.get(dealt.size() - 1);
-		dealt.remove(dealt.size() - 1);
+		Card last = dealt.remove(0);
 		return last;
 	}
 	
