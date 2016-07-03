@@ -21,11 +21,6 @@ public class Deck {
 	private List<Card> cards = new ArrayList<Card>(DECK_SIZE);
 	// Holds cards that have been dealt but not used
 	protected List<Card> dealt = new ArrayList<Card>(DECK_SIZE);
-	//private Vector<Integer> order = new Vector<Integer>(DECK_SIZE);
-	//private Vector<Boolean> used = new Vector<Boolean>(DECK_SIZE);
-	//private int current = 0; // 0 is top of deck. Current should never be a used card
-	
-	// TODO: update used vector for all actions. or remove card from deck instead
 
 	// MODIFIES this
 	// EFFECTS populates cards and order
@@ -34,11 +29,11 @@ public class Deck {
 			Scanner in = new Scanner(new File(file_name));
 			// Read in cards from deck file
 			for (int i = 0; i < DECK_SIZE; i++) {
-				Rank rank_in = parse_rank(in.next());
-				Suit suit_in = parse_suit(in.next());
-				cards.add(new Card(rank_in, suit_in));
-				//order.addElement(i);
-				//used.addElement(false);
+				try {
+					cards.add(new Card(in.next()));
+				} catch (InvalidCardException e) {
+					System.err.println("Error: " + e.getMessage());
+				}
 			}
 			in.close();
 		} catch (FileNotFoundException ex) {
@@ -48,61 +43,6 @@ public class Deck {
 			System.out.printf("Not enough cards in %s.txt\n", file_name);
 			System.exit(1);
 		}
-	}
-
-	// EFFECTS returns Suit based on suit_in
-	private Suit parse_suit(final String suit_in) {
-		switch (suit_in) {
-		case "Spades":
-			return Suit.SPADES;
-		case "Hearts":
-			return Suit.HEARTS;
-		case "Diamonds":
-			return Suit.DIAMONDS;
-		case "Clubs":
-			return Suit.CLUBS;
-		default: {
-			System.err.printf("Error: Invalid Suit '%s'. EXIT 1", suit_in);
-			System.exit(1);
-		}
-		}
-		return null;
-	}
-
-	// EFFECTS returns Rank based on rank_in
-	private Rank parse_rank(final String rank_in) {
-		switch (rank_in) {
-		case "Ace":
-			return Rank.ACE;
-		case "Two":
-			return Rank.TWO;
-		case "Three":
-			return Rank.THREE;
-		case "Four":
-			return Rank.FOUR;
-		case "Five":
-			return Rank.FIVE;
-		case "Six":
-			return Rank.SIX;
-		case "Seven":
-			return Rank.SEVEN;
-		case "Eight":
-			return Rank.EIGHT;
-		case "Nine":
-			return Rank.NINE;
-		case "Ten":
-			return Rank.TEN;
-		case "Jack":
-			return Rank.JACK;
-		case "Queen":
-			return Rank.QUEEN;
-		case "King":
-			return Rank.KING;
-		default:
-			System.err.printf("Error: Invalid Rank '%s'. EXIT 1", rank_in);
-			System.exit(1);
-		}
-		return null;
 	}
 
 	// MODIFIES this

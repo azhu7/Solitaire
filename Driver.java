@@ -13,7 +13,7 @@ public class Driver {
 	public static void main(String[] args) {
 		// TODO: Init output stuff
 
-		Board board = new Board(false, true);
+		Board board = new Board(false, true); // No shuffle for debugging
 		board.print_board();
 		Scanner in = new Scanner(System.in);
 		while (true) {
@@ -28,9 +28,12 @@ public class Driver {
 				switch (choice) {
 				// Next 3 cards
 				case 1: {
-					// TODO: Add try catch block for empty deck exception
-					board.get_next_three_cards();
-					valid_choice = true;
+					try {
+						board.get_next_three_cards();
+						valid_choice = true;
+					} catch (InvalidMoveException e) {
+						System.err.println("Error: " + e.getMessage());
+					}
 					break;
 				}
 				// Deck to Col
@@ -40,11 +43,11 @@ public class Driver {
 						break;
 					}
 					Card top_card = board.peek_queue_card();
-					System.out.print("Move to which column (-1 to go back)? ");
-					int col = in.nextInt();
 					boolean valid_move = false;
 					while (!valid_move) {
 						try {
+							System.out.print("Move to which column (-1 to go back)? ");
+							int col = in.nextInt();
 							if (col == -1) {
 								valid_choice = true;
 								valid_move = true;
@@ -54,7 +57,6 @@ public class Driver {
 							valid_move = true;
 						} catch (InvalidMoveException e) {
 							System.err.println("Error: " + e.getMessage());
-							col = in.nextInt();
 						}
 					}
 					valid_choice = true;
@@ -67,11 +69,11 @@ public class Driver {
 						break;
 					}
 					Card top_card = board.peek_queue_card();
-					System.out.print("Move to which foundation (-1 to go back)? ");
-					int foundation = in.nextInt();
 					boolean valid_move = false;
 					while (!valid_move) {
 						try {
+							System.out.print("Move to which foundation (-1 to go back)? ");
+							int foundation = in.nextInt();
 							if (foundation == -1) {
 								valid_choice = true;
 								valid_move = true;
@@ -81,7 +83,6 @@ public class Driver {
 							valid_move = true;
 						} catch (InvalidMoveException e) {
 							System.err.println("Error: " + e.getMessage());
-							foundation = in.nextInt();
 						}
 					}
 					valid_choice = true;
@@ -89,23 +90,25 @@ public class Driver {
 				}
 				// Col to Col
 				case 4: {
-					System.out.print("From which column to which column (# #) (-1 -1 to go back)? ");
-					int old_col = in.nextInt();
-					int new_col = in.nextInt();
 					boolean valid_move = false;
 					while (!valid_move) {
 						try {
-							if (old_col == -1 && new_col == -1) {
+							System.out.print("From which column (-1 -1 -1 to go back)? ");
+							int old_col = in.nextInt();
+							System.out.print("To which column? ");
+							int new_col = in.nextInt();
+							System.out.print("Move which card? ");
+							String card_code = in.next();
+							if (old_col == -1 || new_col == -1) {
 								valid_choice = true;
-								valid_move = true;
 								break;
 							}
-							board.col_to_col(old_col, new_col);
+							board.col_to_col(old_col, new Card(card_code), new_col);
 							valid_move = true;
 						} catch (InvalidMoveException e) {
 							System.err.println("Error: " + e.getMessage());
-							old_col = in.nextInt();
-							new_col = in.nextInt();
+						} catch (InvalidCardException e) {
+							System.err.println("Error: " + e.getMessage());
 						}
 					}
 					valid_choice = true;
@@ -113,12 +116,13 @@ public class Driver {
 				}
 				// Col to Foundation
 				case 5: {
-					System.out.print("From which column to which foundation (# #) (-1 -1 to go back)? ");
-					int old_col = in.nextInt();
-					int foundation_num = in.nextInt();
 					boolean valid_move = false;
 					while (!valid_move) {
 						try {
+							System.out.print("From which column (-1 -1 to go back) ");
+							int old_col = in.nextInt();
+							System.out.print("To which foundation? ");
+							int foundation_num = in.nextInt();
 							if (old_col == -1 && foundation_num == -1) {
 								valid_choice = true;
 								valid_move = true;
@@ -128,8 +132,6 @@ public class Driver {
 							valid_move = true;
 						} catch (InvalidMoveException e) {
 							System.err.println("Error: " + e.getMessage());
-							old_col = in.nextInt();
-							foundation_num = in.nextInt();
 						}
 					}
 					valid_choice = true;
@@ -137,13 +139,16 @@ public class Driver {
 				}
 				// Reset Deck
 				case 6: {
-					// TODO: Add try catch block for non-empty deck exception
-					board.reset_deck();
-					valid_choice = true;
+					try {
+						board.reset_deck();
+						valid_choice = true;
+					} catch (InvalidMoveException e) {
+						System.err.println("Error: " + e.getMessage());
+					}
 					break;
 				}
 				case 7: {
-					System.out.println("Are you sure you want to quit (y/n)?");
+					System.out.print("Are you sure you want to quit (y/n)? ");
 					String quit = in.next();
 					if (quit.equals("n")) {
 						valid_choice = true;

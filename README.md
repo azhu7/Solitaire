@@ -1,3 +1,3 @@
-# Solitaire (v1.5)
+# Solitaire (v1.6)
 
 Simple Solitaire game implemented in Java

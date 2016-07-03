@@ -8,50 +8,15 @@ public class Card {
 	public static final String RED = "Red";
 	public static final String BLACK = "Black";
 	
+	public static final Suit_BidiMap suits = new Suit_BidiMap();
+	public static final Rank_BidiMap ranks = new Rank_BidiMap();
+	
 	private Rank rank;
-	private int rank_num; // Consider removing this
 	private Suit suit;
 	private String color; // Consider removing this
-
-	// EFFECTS: Returns numerical value of card rank
-	private int rank_to_num(Rank rank_in) {
-		switch (rank_in) {
-		case ACE:
-			return 1;
-		case TWO:
-			return 2;
-		case THREE:
-			return 3;
-		case FOUR:
-			return 4;
-		case FIVE:
-			return 5;
-		case SIX:
-			return 6;
-		case SEVEN:
-			return 7;
-		case EIGHT:
-			return 8;
-		case NINE:
-			return 9;
-		case TEN:
-			return 10;
-		case JACK:
-			return 11;
-		case QUEEN:
-			return 12;
-		case KING:
-			return 13;
-		default: {
-			System.err.printf("Error: Invalid Rank '%s'. EXIT 1", rank_in);
-			System.exit(1);
-		}
-		}
-		return -1; // To suppress compiler warnings
-	}
 	
 	// EFFECTS: Returns string of card color
-	private String suit_to_string(Suit suit_in) {
+	private String suit_color(Suit suit_in) {
 		if (suit_in == Suit.SPADES || suit_in == Suit.CLUBS) {
 			return "Black";
 		}
@@ -59,24 +24,38 @@ public class Card {
 			return "Red";
 		}
 	}
-	
-	public Card(Rank rank_in, Suit suit_in) {
-		this.suit = suit_in;
-		this.rank = rank_in;
-		this.rank_num = rank_to_num(rank_in);
-		this.color = suit_to_string(suit_in);
-	}
 
+	public Card(String card_code) throws InvalidCardException {
+		String rank_in = null;
+		String suit_in = null;
+		// Use first letters of card_code
+		rank_in = card_code.substring(0, card_code.length() - 1);
+		// Use last letter in card_code
+		suit_in = String.valueOf(card_code.charAt(card_code.length() - 1));
+		
+		// Set card values
+		this.rank = ranks.get_rank(rank_in);
+		this.suit = suits.get_suit(suit_in);
+		this.color = suit_color(this.suit);
+		
+		// Invalid rank or suit
+		if (this.rank == null || this.suit == null) {
+			throw new InvalidCardException(
+					String.format("Invalid card %s", card_code));
+		}
+	}
+	
 	public Rank get_rank() {
 		return this.rank;
 	}
 	
 	public int get_rank_num() {
-		return this.rank_num;
+		return ranks.get_rank_num(this.rank);
 	}
 	
-	public String get_rank_symbol() {
-		int symbol = this.rank_num;
+	// Converts rank to print format
+	public String get_rank_print() {
+		int symbol = this.get_rank_num();
 		if (symbol == 1) {
 			return "A";
 		}
@@ -102,24 +81,6 @@ public class Card {
 	public String get_color() {
 		return this.color;
 	}
-
-	// REQUIRES using default deck
-	// EFFECTS Returns index in deck. Used in Deck methods
-	public int get_deck_index() {
-		int index = get_rank_num() - 1;
-		// Continually adds 13 based on suit
-		switch (get_suit()) {
-		case DIAMONDS:
-			index += 13;
-		case CLUBS:
-			index += 13;
-		case HEARTS:
-			index += 13;
-		default: {
-			return index;
-		}
-		}
-	}
 	
 	@Override
 	public int hashCode() {
@@ -127,7 +88,6 @@ public class Card {
 		int result = 1;
 		result = prime * result + ((color == null) ? 0 : color.hashCode());
 		result = prime * result + ((rank == null) ? 0 : rank.hashCode());
-		result = prime * result + rank_num;
 		result = prime * result + ((suit == null) ? 0 : suit.hashCode());
 		return result;
 	}
@@ -148,22 +108,17 @@ public class Card {
 			return false;
 		if (rank != other.rank)
 			return false;
-		if (rank_num != other.rank_num)
-			return false;
 		if (suit != other.suit)
 			return false;
 		return true;
 	}
 	
-	public String suitLetter() {
-		return (suit.toString()).substring(0,1);
-	}
-	
+	// For printing purposes
 	public String toString() {
-		if (this.get_rank_symbol() == "10") {
-			return this.get_rank_symbol() + this.suitLetter() + " ";
+		if (this.get_rank_print() == "10") {
+			return this.get_rank_print() + suits.get_suit_char(this.suit) + " ";
 		}
-		return " " + this.get_rank_symbol() + this.suitLetter() + " ";
+		return " " + this.get_rank_print() + suits.get_suit_char(this.suit) + " ";
 	}
 
 }

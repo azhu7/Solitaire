@@ -54,7 +54,12 @@ public class Solitaire_tests {
 		System.out.println("Begin test_Board");
 		
 		Board board = new Board(false, false);
-		board.get_next_three_cards();
+		try {
+			board.get_next_three_cards();
+		} catch (InvalidMoveException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		board.print_card_queue();
 		Card king_diamonds = new Card(Rank.KING, Suit.DIAMONDS);
 		Card nine_diamonds = new Card(Rank.NINE, Suit.DIAMONDS);
@@ -128,7 +133,12 @@ public class Solitaire_tests {
 		Board board = new Board(false, false);
 		// Print through end of deck
 		for (int i = 0; i < 18; ++i) {
-			board.get_next_three_cards();
+			try {
+				board.get_next_three_cards();
+			} catch (InvalidMoveException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			board.print_card_queue();
 		}
 		assert(board.deck.empty());
@@ -138,15 +148,19 @@ public class Solitaire_tests {
 	
 	public static void test_Print() {
 		Board board = new Board(false, true);
-		board.print_board();
-		board.get_next_three_cards();
-		board.print_board();
-		board.get_next_three_cards();
-		board.print_board();
-		board.reset_deck();
-		board.print_board();
-		board.get_next_three_cards();
-		board.print_board();
+		try{
+			board.print_board();
+			board.get_next_three_cards();
+			board.print_board();
+			board.get_next_three_cards();
+			board.print_board();
+			board.reset_deck();
+			board.print_board();
+			board.get_next_three_cards();
+			board.print_board();
+		} catch (InvalidMoveException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
