@@ -4,14 +4,15 @@
  * Coauthor: Jason Zhu
  */
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.Scanner;
-import java.io.File;
-import java.io.FileNotFoundException;
 
 public class Deck {
 
@@ -65,6 +66,8 @@ public class Deck {
 	// EFFECTS shuffles deck by shuffling order
 	public void shuffle() {
 		Collections.shuffle(cards);
+		// TODO: Shuffle with random seed each time, then we can save the seed
+		//Collections.shuffle(cards, new Random(10));
 	}
 
 	// REQUIRES deck is not empty
