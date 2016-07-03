@@ -13,7 +13,7 @@ public class Driver {
 	public static void main(String[] args) {
 		// TODO: Init output stuff
 
-		Board board = new Board(false, true); // No shuffle for debugging
+		Board board = new Board(true, true); // No shuffle for debugging
 		board.print_board();
 		Scanner in = new Scanner(System.in);
 		while (true) {
@@ -93,13 +93,13 @@ public class Driver {
 					boolean valid_move = false;
 					while (!valid_move) {
 						try {
-							System.out.print("From which column (-1 -1 -1 to go back)? ");
+							System.out.print("From which column (-1 to go back)? ");
 							int old_col = in.nextInt();
 							System.out.print("To which column? ");
 							int new_col = in.nextInt();
 							System.out.print("Move which card? ");
 							String card_code = in.next();
-							if (old_col == -1 || new_col == -1) {
+							if (old_col == -1 || new_col == -1 || card_code == "-1") {
 								valid_choice = true;
 								break;
 							}
@@ -119,11 +119,11 @@ public class Driver {
 					boolean valid_move = false;
 					while (!valid_move) {
 						try {
-							System.out.print("From which column (-1 -1 to go back) ");
+							System.out.print("From which column (-1 to go back) ");
 							int old_col = in.nextInt();
 							System.out.print("To which foundation? ");
 							int foundation_num = in.nextInt();
-							if (old_col == -1 && foundation_num == -1) {
+							if (old_col == -1 || foundation_num == -1) {
 								valid_choice = true;
 								valid_move = true;
 								break;

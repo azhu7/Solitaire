@@ -70,7 +70,6 @@ public class Deck {
 	// REQUIRES deck is not empty
 	// EFFECTS Returns top card
 	public Card top() {
-		assert(!cards.isEmpty());
 		return cards.get(cards.size() - 1);
 	}
 	
@@ -84,6 +83,7 @@ public class Deck {
 	// EFFECTS Deals top card
 	public Card deal_one() {
 		if (cards.isEmpty()) {
+			//TODO: Make this and retrieve_one an exception instead?
 			System.out.println("deal_one(): Deck is empty");
 		}
 		Card top_card = top();
@@ -91,9 +91,23 @@ public class Deck {
 		return top_card;
 	}
 	
+	public Card retrieve_one() {
+		if (dealt.isEmpty()) {
+			System.out.println("retrieve_one(); Dealt is empty");
+		}
+		Card last = dealt.get(dealt.size() - 1);
+		dealt.remove(dealt.size() - 1);
+		return last;
+	}
+	
 	// EFFECTS Returns True if deck is empty
-	public boolean empty() {
+	public boolean cardsIsEmpty() {
 		return cards.isEmpty();
+	}
+	
+	// EFFECTS Returns True if dealt is empty
+	public boolean dealtIsEmpty() {
+		return dealt.isEmpty();
 	}
 	
 	// MODIFIES this
@@ -107,4 +121,5 @@ public class Deck {
 	public int remaining() {
 		return cards.size();
 	}
+
 }

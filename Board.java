@@ -1,4 +1,3 @@
-
 /*
  * Created June 13, 2016
  * Author: Alexander Zhu
@@ -9,7 +8,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Stack;
-import java.util.ArrayList;
 
 public class Board implements Use_cases {
 	private final int NUM_COLS = 7;
@@ -41,8 +39,13 @@ public class Board implements Use_cases {
 
 		Column this_column = tableau.get(col);
 		// Column is empty and card is King
-		if (this_column.column.isEmpty() && card.get_rank() == Rank.KING)
-			return true;
+		if (this_column.column.isEmpty() && card.get_rank() == Rank.KING) {
+			if (card.get_rank() == Rank.KING) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 		// If top_color is "Red"
 		boolean correct_color = card.get_color() == Card.RED;
 		if (this_column.top_color == Card.RED) {
@@ -210,6 +213,14 @@ public class Board implements Use_cases {
 		// If valid move
 		col_push_card(col, card); // Add card to column
 		card_queue.removeLast(); // Remove card from queue
+		
+		if (card_queue.isEmpty()) {
+			try {
+				get_previous_three_cards();
+			} catch (InvalidMoveException e) {
+				System.err.println("InvalidMoveException: " + e.getMessage());
+			}
+		}
 	}
 
 	// REQUIRES: foundation_num is [0, NUM_FOUNDATIONS - 1], queue is not empty
@@ -230,6 +241,14 @@ public class Board implements Use_cases {
 		// If valid move
 		foundation_push_card(foundation_num, card); // Add card to foundations
 		card_queue.removeLast(); // Remove card from queue
+		
+		if (card_queue.isEmpty()) {
+			try {
+				get_previous_three_cards();
+			} catch (InvalidMoveException e) {
+				System.err.println("InvalidMoveException: " + e.getMessage());
+			}
+		}
 	}
 
 	// REQUIRES: col is [0, NUM_COLS - 1]
@@ -254,19 +273,21 @@ public class Board implements Use_cases {
 	// REQUIRES: col is [0, NUM_COLS - 1]
 	// EFFECTS: returns all cards in col starting from specified card
 	private ArrayList<Card> get_card_sequence(final int col, final Card card) throws InvalidCardException {
+		// No such card in column
+		if (!tableau.get(col).column.contains(card)) {
+			throw new InvalidCardException(
+					String.format("Column %d does not contain Card %s", col, card));
+		}
+
 		ArrayList<Card> sequence = new ArrayList<Card>();
 		for (Iterator<Card> itr = tableau.get(col).column.iterator(); itr.hasNext();) {
-			if (itr.next().equals(card)) {
-				sequence.add(card);
-				while (itr.hasNext()) {
-					sequence.add(itr.next());
-				}
-				return sequence;
+			Card nextCard = itr.next();
+			if (!nextCard.equals(card)) {
+				sequence.add(0, nextCard);
 			}
 		}
-		// No such card in column
-		throw new InvalidCardException(
-				String.format("Column %d does not contain Card %s", col, card));
+		sequence.add(0, card);
+		return sequence;
 	}
 	
 	// REQUIRES: old_col and new_col are [0, NUM_COLS - 1].
@@ -292,8 +313,8 @@ public class Board implements Use_cases {
 		// Get sequence of cards from old_col
 		ArrayList<Card> sequence = get_card_sequence(old_col, card);
 
-		// Make sure top card in sequence is card being moved
-		assert (sequence.get(0).equals(card));
+		// Make sure last card in sequence is the specified card
+		assert(sequence.get(sequence.size() - 1).equals(card));
 		
 		// Attempt to add to new_col
 		if (!valid_col_move(new_col, card)) {
@@ -343,16 +364,30 @@ public class Board implements Use_cases {
 	}
 
 	// MODIFIES: deck, card_queue
-	// EFFECTS: Adds next three cards to next_cards
-	//			Throws exception if invalid move
+	// EFFECTS: Adds next three cards from deck to card_queue
+	//			Throws exception if deck is empty
 	public void get_next_three_cards() throws InvalidMoveException {
-		if (deck.empty()) {
+		if (deck.cardsIsEmpty()) {
 			throw new InvalidMoveException("Deck is empty");
 		}
 		deck.add_to_dealt(card_queue);
 		card_queue.clear();
-		while (!deck.empty() && card_queue.size() != NUM_IN_QUEUE) {
+		while (!deck.cardsIsEmpty() && card_queue.size() != NUM_IN_QUEUE) {
 			card_queue.addFirst(deck.deal_one());
+		}
+	}
+	
+	// MODIFIES: card_queue, dealt
+	// EFFECTS: Adds previous 3 queue cards back into card_queue
+	//			Throws exception if dealt is empty or queue is not empty
+	public void get_previous_three_cards() throws InvalidMoveException {
+		if (deck.dealtIsEmpty()) {
+			throw new InvalidMoveException("Dealt pile is empty");
+		} else if (!card_queue.isEmpty()) {
+			throw new InvalidMoveException("Queue is not empty");
+		}
+		while (!deck.dealtIsEmpty() && card_queue.size() != NUM_IN_QUEUE) {
+			card_queue.addFirst(deck.retrieve_one());
 		}
 	}
 
@@ -360,7 +395,7 @@ public class Board implements Use_cases {
 	// EFFECTS: Resets deck when player reaches bottom of deck
 	//			Throws exception if invalid move
 	public void reset_deck() throws InvalidMoveException {
-		if (!deck.empty()) {
+		if (!deck.cardsIsEmpty()) {
 			throw new InvalidMoveException("Deck is not empty");
 		}
 		deck.add_to_dealt(card_queue);
@@ -447,6 +482,7 @@ public class Board implements Use_cases {
 		System.out.print("Foundations: ");
 		print_foundations();
 		System.out.println("Tableau: ");
+		System.out.println(" #0  #1  #2  #3  #4  #5  #6 ");
 		print_piles();
 		print_columns();
 	}

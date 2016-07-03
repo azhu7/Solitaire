@@ -22,13 +22,16 @@ public class Solitaire_tests {
 	public static void test_Card() {
 		System.out.println("Begin test_Card");
 		// Create an Ace of Clubs
-		Card card1 = new Card(Rank.ACE, Suit.CLUBS);
-		assert(card1.get_color() == Card.BLACK);
-		assert(card1.get_rank() == Rank.ACE);
-		assert(card1.get_suit() == Suit.CLUBS);
-		assert(card1.get_rank_num() == 1);
-		assert(card1.get_rank_symbol() == "A");
-		System.out.println("/ACE of CLUBS\\ is at index " + card1.get_deck_index());
+		try {
+			Card card1 = new Card("AC");
+			assert(card1.get_color() == Card.BLACK);
+			assert(card1.get_rank() == Rank.ACE);
+			assert(card1.get_suit() == Suit.CLUBS);
+			assert(card1.get_rank_num() == 1);
+			assert(card1.get_rank_print() == "A");
+		} catch (InvalidCardException e) {
+			System.err.println("InvalidCardException: " + e.getMessage());
+		}
 		System.out.println("test_Card passed");
 	}
 
@@ -61,13 +64,13 @@ public class Solitaire_tests {
 			e1.printStackTrace();
 		}
 		board.print_card_queue();
-		Card king_diamonds = new Card(Rank.KING, Suit.DIAMONDS);
-		Card nine_diamonds = new Card(Rank.NINE, Suit.DIAMONDS);
-		Card two_spades = new Card(Rank.TWO, Suit.SPADES);
-		Card ace_hearts = new Card(Rank.ACE, Suit.HEARTS);
-		Card two_hearts = new Card(Rank.TWO, Suit.HEARTS);
-		// Place king_diamonds in column 0
 		try {
+			Card king_diamonds = new Card("KD");
+			Card nine_diamonds = new Card("9D");
+			Card two_spades = new Card("2S");
+			Card ace_hearts = new Card("AH");
+			Card two_hearts = new Card("2H");
+			// Place king_diamonds in column 0
 			board.deck_to_col(0, board.peek_queue_card());
 			board.print_card_queue();
 			assert(board.card_queue.size() == 2);
@@ -79,16 +82,21 @@ public class Solitaire_tests {
 			board.deck_to_col(2, two_spades);
 			assert(board.peek_col_card(2).equals(two_spades));
 			// Move ace_hearts from column 1 to 2
-			board.col_to_col(1, 2);
+			try {
+				board.col_to_col(1, ace_hearts, 2);
+			} catch (InvalidCardException e) {
+				System.err.println("InvalidCardException: " + e.getMessage());
+			}
 			assert(board.peek_col_card(2).equals(ace_hearts));
 			
 			// Invalid move
 			try {
-				board.col_to_col(0, 2);
-			}
-			catch (InvalidMoveException e) {
+				board.col_to_col(0, king_diamonds, 2);
+			} catch (InvalidMoveException e) {
 				System.err.println("InvalidMoveException: " + e.getMessage());
 				System.out.println("Invalid move test 1 passed");
+			} catch (InvalidCardException e) {
+				System.err.println("InvalidCardException: " + e.getMessage());
 			}
 			
 			// Make sure card did not move
@@ -102,8 +110,7 @@ public class Solitaire_tests {
 			// Invalid move
 			try {
 				board.col_to_foundation(0, 0);
-			}
-			catch (InvalidMoveException e) {
+			} catch (InvalidMoveException e) {
 				System.err.println("InvalidMoveException: " + e.getMessage());
 				System.out.println("Invalid move test 2 passed");
 			}
@@ -116,14 +123,18 @@ public class Solitaire_tests {
 			board.deck_to_foundation(0, two_hearts);
 			assert(board.peek_foundation_card(0).equals(two_hearts));
 			// Move king_diamonds to its current column
-			board.col_to_col(0, 0);
-			
+			try {
+				board.col_to_col(0, king_diamonds, 0);
+			} catch (InvalidCardException e) {
+				System.err.println("InvalidCardException: " + e.getMessage());
+			}
 			board.reset_deck();
 			assert(board.deck.top().equals(nine_diamonds));
-		}
-		catch (InvalidMoveException e) {
+		} catch (InvalidMoveException e) {
 			System.err.println("InvalidMoveException(s): " + e.getMessage());
 			System.err.println("-----DID NOT PASS-----");
+		} catch (InvalidCardException e) {
+			System.err.println("InvalidCardException: " + e.getMessage());
 		}
 		System.out.println("test_Board passed");
 	}
@@ -141,7 +152,7 @@ public class Solitaire_tests {
 			}
 			board.print_card_queue();
 		}
-		assert(board.deck.empty());
+		assert(board.deck.cardsIsEmpty());
 		// TODO: finish this test case
 		System.out.println("test_Queue() passed");
 	}
