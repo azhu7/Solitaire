@@ -8,6 +8,14 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.TreeBidiMap;
 
 public class Suit_BidiMap {
+	
+	public enum Suit {
+		SPADES,
+		HEARTS,
+		CLUBS,
+		DIAMONDS
+	}
+	
 	private BidiMap<Suit, String> suits;
 	
 	public Suit_BidiMap() {
